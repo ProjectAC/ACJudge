@@ -1,3 +1,5 @@
+#pragma once
+
 #include "../Definations/types.h"
 #include "../Definations/enums.h"
 
@@ -9,7 +11,13 @@ Return set_limits(Limit time, Limit space);
 // [Interface] set_rules
 // Set rules (security) for current process
 // Called when <restricted> is true
-Return set_rules();
+// [Thanks] QingDaoU Judger
+// link: https://github.com/QingdaoU/Judger
+Return set_rules(const char *path);
+
+// [Interface] set_gid
+// Set group of current process to guest for safety
+Return set_gid();
 
 // [Interface] redirection
 // Redirect file input/output/error target
@@ -19,4 +27,4 @@ Return redirection(const char *in, const char *out, const char *err);
 // Run the 
 // Limit time and space
 // And (might) restrict syscalls if <restricted> set to true
-Return run(const char name[], Limit time, Limit space, bool restricted);
+Return run(const char *path, const char *name, Limit time, Limit space, bool restricted);
