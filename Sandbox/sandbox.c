@@ -18,7 +18,7 @@
 Return set_time_limit(Limit time) 
 {
     Limit stime = time * 3;
-    struct itimerval time_limit;
+    ITimerVal time_limit;
 
     time_limit.it_interval.tv_sec = time_limit.it_interval.tv_usec = 0;
     
@@ -56,9 +56,10 @@ Return set_space_limit(Limit space)
     return OK;
 }
 
-Return set_file(const char )
+// Redirect file <file> to file with name <name>
+Return set_file(const char *, const char *name)
 {
-
+    
 
 }
 
