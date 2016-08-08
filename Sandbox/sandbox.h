@@ -27,4 +27,6 @@ Return redirection(const char *in, const char *out, const char *err);
 // Run the 
 // Limit time and space
 // And (might) restrict syscalls if <restricted> set to true
-Return run(const char *path, const char *name, Limit time, Limit space, bool restricted);
+// Redirect I/O to file <fin> <fout> and <ferr>
+// If these pointers are set to NULL, then stdin/out will be remained 
+Result run(const char *path, const char *name, Limit time, Limit space, bool restricted, const char *fin, const char *fout, const char *ferr);

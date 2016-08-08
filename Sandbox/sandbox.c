@@ -30,8 +30,8 @@ Return set_time_limit(Limit time)
         return ERR;
     
     // All CPU time
-    time_limit.it_value.tv_sec = time / 1000;
-    time_limit.it_value.tv_usec = time % 1000 * 1000;
+    time_limit.it_value.tv_sec = stime / 1000;
+    time_limit.it_value.tv_usec = stime % 1000 * 1000;
     if(setitimer(ITIMER_REAL, &time_limit, NULL))
         return ERR;
 
@@ -56,7 +56,7 @@ Return set_space_limit(Limit space)
     return OK;
 }
 
-// Redirect i/o flow <file> to file with name <name>
+// Redirect I/O flow <file> to file with name <name>
 Return set_file(FILE *fp, const char *name, const char *mode)
 {
     FILE *newfp;
@@ -67,14 +67,31 @@ Return set_file(FILE *fp, const char *name, const char *mode)
     return OK;
 }
 
+// Starter
+// This is what the starter have to do before execve
+void start(const char *path, const char *name, Limit time, Limit space, bool restricted, const char *fin, const char *fout, const char *ferr)
+{
+    char s[10000];
+    sprintf(s, "%s/%s", path, name);
+
+    if(set_limits(time, space) == ERR)
+        exit(ERR);
+    if(redirection(fin, fout, ferr) == ERR)
+        exit(ERR);
+    if(restricted && (set_rules(path) == ERR || set_gid() == ERR))
+        exit(ERR);
+    if(execve(s, ))
+        exit(ERR);
+}
+
 // [Interface] redirection
 Return redirection(const char *in, const char *out, const char *err)
 {
-    if(set_file(stdin , in , "r") == ERR)
+    if(in  != NULL && set_file(stdin , in , "r") == ERR)
         return ERR;
-    if(set_file(stdout, out, "w") == ERR)
+    if(out != NULL && set_file(stdout, out, "w") == ERR)
         return ERR;
-    if(set_file(stderr, err, "w") == ERR)
+    if(err != NULL && set_file(stderr, err, "w") == ERR)
         return ERR;
     return OK;
 }
@@ -120,6 +137,7 @@ Return set_rules(const char *path)
     int i;
     scmp_filter_ctx ctx;
 
+    // Init
     if(!(ctx = seccomp_init(SCMP_ACT_KILL)))
         return ERR;
 
@@ -131,7 +149,7 @@ Return set_rules(const char *path)
     // Enable execve
     if(seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(execve), 1, SCMP_A0(SCMP_CMP_EQ, path)))
         return ERR;
-    // Allow fd 0 1 2
+    // Allow FD but 0 1 2 only
     if(seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(write), 1, SCMP_A0(SCMP_CMP_LE, 2)))
         return ERR;
     
@@ -144,7 +162,91 @@ Return set_rules(const char *path)
 }
 
 // [Interface] run
-Return run(const char *path, const char *name, Limit time, Limit space, bool restricted)
+Result run(const char *path, const char *name, Limit time, Limit space, bool restricted, const char *fin, const char *fout, const char *ferr)
 {
+    int starter, timer;
+    int pid, status, signal, retval;
+    Result res;
+    RUsage resource_usage;
+
+    // Init res
+    res.time = res.space = 0;
+    res.ret = OK;
+
+    // Fork for starter
+    if((starter = fork()) < 0)
+        return res.ret = ERR, res;
+    else if (starter == 0)  // Starter subprocess
+    {
+        start(path, name, time, space, restricted, fin, fout, ferr);
+        // If this return is accessed, then something wrong must happened
+        exit(ERR);
+    }
     
+    // Else
+    // Main process
+    if((timer = fork()) < 0)
+    {
+        //Subprocess have already been started and must be killed
+        kill(starter);
+        return res.ret = ERR, res;
+    }else if(timer == 0)  //Timer subprocess
+    {
+        usleep(time * 3000);
+        exit(0);
+    }
+
+    // Else
+    // Main process
+    // Deal with the return value
+
+    // Wait for the subprocess to quit 
+    if((pid = wait4(pid, &status, 0, &resource_usage)) == -1)
+        return res.ret = ERR, res;
+    
+    // Timer process ended but running one not: Real time TLE
+    if(pid == timer)
+        return res.ret = TLE, res;
+    
+    // Get CPU time
+    res.time = (int) (resource_usage.ru_utime.tv_sec * 1000 +
+                      resource_usage.ru_utime.tv_usec / 1000 +
+                      resource_usage.ru_stime.tv_sec * 1000 +
+                      resource_usage.ru_stime.tv_usec / 1000);
+    if(res.time == 0)
+        res.time = 1;
+    
+    // Get space
+    res.space = resource_usage.ru_maxrss;
+
+    // Get signal
+    if(WIFSIGNALED(status))
+    {
+        signal = WTERMSIG(status);
+        if(signal == SIGALRM)  // Real time TLE
+            res.ret = TLE;
+        else if(signal == SIGVTALRM)  // CPU time TLE
+            res.ret = TLE;
+        else if(signal == SIGSEGV)  // Segment fault
+            if(space != LIMIT_INFINITE && res.space > space)
+                res.ret = MLE;
+            else
+                res.ret = RTE;
+        else
+            res.ret = RTE;
+    }else
+    {
+        if(space != LIMIT_INFINITE && res.space > space)  // MLE
+            res.ret = MLE;
+
+        retval = WEXITSTATUS(status);
+        if(retval == ERR)  // System error
+            res.ret = ERR;
+        else if(retval)  //RTE
+            res.ret = RTE;
+        else
+            res.ret = OK;
+    }
+
+    return res;
 }
