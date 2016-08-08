@@ -11,8 +11,8 @@ With ACPL script, problem designers can set their own, unique judging procedure.
 The warden that protects the system from being damaged by user codes.  
 
 ### [Supports]
-Including database, file and management interfaces.
+Including database, file and management interfaces.  
 Database interface will get queueing submissions from database, send them to the judge, collect the results and restore to databse.  
-File interface will prepare data, source code and things like that for the judge.
-Management interface is the connection between web server (script) and judge.
+File interface will prepare data, source code and things like that for the judge.  
+Management interface is the connection between web server (script) and judge.  
 When ACOJ Server is started, this module will be automatically started, but without it, the judge can also be used offline.
