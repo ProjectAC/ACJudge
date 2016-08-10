@@ -1,4 +1,3 @@
-#include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -12,11 +11,18 @@
 #include <fcntl.h>
 #include <errno.h>
 
-using namespace std;
-
-int main(int argc, char *argv[])
+int main()
 {
-    cout<<"Hello World!"<<endl;
+    char *args[1] = {NULL};
+    
+    if(fork() == 0)
+    {
+        execv("./Test", args);
+    }else
+    {
+        int sta;
+        wait(&sta);
+    }
     
     return 0;
 }

@@ -50,7 +50,7 @@ Return set_space_limit(Limit space)
 {
     // setrlimit
     RLimit limit;
-    limit.rlim_cur = limit.rlim_max = (rlim_t)(space) + 1000000;
+    limit.rlim_cur = limit.rlim_max = (rlim_t)(space + 20000000);
     if(setrlimit(RLIMIT_AS, &limit) == -1)
         return ERR;
     return OK;
@@ -72,19 +72,25 @@ Return set_file(FILE *fp, const char *name, const char *mode)
 void start(const char *path, const char *name, char *args[], Limit time, Limit space, bool restricted, const char *fin, const char *fout, const char *ferr)
 {
     char s[1000];
+    char *arguments[1000];
+    int argc;
     //char const *envp[] = {NULL};
     //char const *envp[] ={"PATH=/bin:/usr/bin", "TERM=console", NULL};
 
     sprintf(s, "%s/%s", path, name);
-    args[0] = s;
+    arguments[0] = s;
+    for(argc = 1; args[argc + 1]; argc++)
+        arguments[argc] = args[argc + 1];
+    arguments[argc] = NULL;
 
     if(set_limits(time, space) == ERR)
         exit(ERR);
     if(redirection(fin, fout, ferr) == ERR)
         exit(ERR);
-    if(restricted && (set_rules(path) == ERR || set_gid() == ERR))
+    if(restricted && (/*set_gid() == ERR || */set_rules(s) == ERR) )
         exit(ERR);
-    if(execv(s, args))
+    puts("OK");
+    if(execv(s, arguments))
         exit(ERR);
 }
 
@@ -107,7 +113,7 @@ Return set_limits(Limit time, Limit space)
         if(set_time_limit(time) == ERR)
             return ERR;
     if(space != LIMIT_INFINITE)
-        if(set_space_limit(space * 1000) == ERR)
+        if(set_space_limit(space * 1024) == ERR)
             return ERR;
     return OK;
 }
@@ -169,7 +175,7 @@ Return set_rules(const char *path)
 Result run(const char *path, const char *name, char *args[], Limit time, Limit space, bool restricted, const char *fin, const char *fout, const char *ferr)
 {
     int starter;
-    int timer;
+    //int timer;
     int pid, status, signal, retval;
     Result res;
     RUsage resource_usage;
@@ -255,7 +261,7 @@ Result run(const char *path, const char *name, char *args[], Limit time, Limit s
         else
         {
             res.ret = RTE;
-            sprintf(res.msg, "Other RTE");
+            sprintf(res.msg, "Illegal syscall detected RTE");
         }
     }else
     {

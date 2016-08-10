@@ -3,15 +3,10 @@
 
 int main(int argc, char *args[])
 {
-    char *arguments[1000];
-    int i;
+    //int i;
     Result res;
 
-    for(i = 1; i < argc; i++)
-        arguments[i - 1] = args[i];
-    arguments[argc - 1] = NULL;
-
-    res = run("../Container", args[1], arguments, LIMIT_INFINITE, 1000, 0, NULL, NULL, NULL);
+    res = run("../Container", args[1], args, 1000, 1000, 1, NULL, "out", NULL);
     printf("%d\nTime: %d\nSpace: %d\n%s\n", res.ret, res.time, res.space, res.msg);
 
     return 0;
