@@ -69,10 +69,14 @@ Return set_file(FILE *fp, const char *name, const char *mode)
 
 // Starter
 // This is what the starter have to do before execve
-void start(const char *path, const char *name, Limit time, Limit space, bool restricted, const char *fin, const char *fout, const char *ferr)
+void start(const char *path, const char *name, char *args[], Limit time, Limit space, bool restricted, const char *fin, const char *fout, const char *ferr)
 {
-    char s[10000];
+    char s[1000];
+    //char const *envp[] = {NULL};
+    //char const *envp[] ={"PATH=/bin:/usr/bin", "TERM=console", NULL};
+
     sprintf(s, "%s/%s", path, name);
+    args[0] = s;
 
     if(set_limits(time, space) == ERR)
         exit(ERR);
@@ -80,7 +84,7 @@ void start(const char *path, const char *name, Limit time, Limit space, bool res
         exit(ERR);
     if(restricted && (set_rules(path) == ERR || set_gid() == ERR))
         exit(ERR);
-    if(execve(s, ))
+    if(execv(s, args))
         exit(ERR);
 }
 
@@ -162,9 +166,10 @@ Return set_rules(const char *path)
 }
 
 // [Interface] run
-Result run(const char *path, const char *name, Limit time, Limit space, bool restricted, const char *fin, const char *fout, const char *ferr)
+Result run(const char *path, const char *name, char *args[], Limit time, Limit space, bool restricted, const char *fin, const char *fout, const char *ferr)
 {
-    int starter, timer;
+    int starter;
+    int timer;
     int pid, status, signal, retval;
     Result res;
     RUsage resource_usage;
@@ -178,35 +183,41 @@ Result run(const char *path, const char *name, Limit time, Limit space, bool res
         return res.ret = ERR, res;
     else if (starter == 0)  // Starter subprocess
     {
-        start(path, name, time, space, restricted, fin, fout, ferr);
+        start(path, name, args, time, space, restricted, fin, fout, ferr);
         // If this return is accessed, then something wrong must happened
         exit(ERR);
     }
     
     // Else
     // Main process
-    if((timer = fork()) < 0)
+    // This is the timer in old edition
+    // Now abandoned
+    /*
+    if(timer = fork() < 0)
     {
         //Subprocess have already been started and must be killed
-        kill(starter);
+        kill(starter, SIGKILL);
         return res.ret = ERR, res;
     }else if(timer == 0)  //Timer subprocess
     {
         usleep(time * 3000);
         exit(0);
     }
+    */
 
     // Else
     // Main process
     // Deal with the return value
 
     // Wait for the subprocess to quit 
-    if((pid = wait4(pid, &status, 0, &resource_usage)) == -1)
+    if((pid = wait3(&status, 0, &resource_usage)) == -1)
         return res.ret = ERR, res;
     
     // Timer process ended but running one not: Real time TLE
+    /*
     if(pid == timer)
         return res.ret = TLE, res;
+    */
     
     // Get CPU time
     res.time = (int) (resource_usage.ru_utime.tv_sec * 1000 +
@@ -224,28 +235,50 @@ Result run(const char *path, const char *name, Limit time, Limit space, bool res
     {
         signal = WTERMSIG(status);
         if(signal == SIGALRM)  // Real time TLE
+        {
             res.ret = TLE;
-        else if(signal == SIGVTALRM)  // CPU time TLE
+            sprintf(res.msg, "Real time TLE");
+        }else if(signal == SIGVTALRM)  // CPU time TLE
+        {
             res.ret = TLE;
-        else if(signal == SIGSEGV)  // Segment fault
+            sprintf(res.msg, "CPU time TLE");
+        }else if(signal == SIGSEGV)  // Segment fault
             if(space != LIMIT_INFINITE && res.space > space)
+            {
                 res.ret = MLE;
-            else
+                sprintf(res.msg, "MLE");
+            }else
+            {
                 res.ret = RTE;
+                sprintf(res.msg, "Signaled RTE");
+            }
         else
+        {
             res.ret = RTE;
+            sprintf(res.msg, "Other RTE");
+        }
     }else
     {
         if(space != LIMIT_INFINITE && res.space > space)  // MLE
+        {
             res.ret = MLE;
+            sprintf(res.msg, "MLE");
+        }
 
         retval = WEXITSTATUS(status);
         if(retval == ERR)  // System error
+        {
             res.ret = ERR;
-        else if(retval)  //RTE
+            sprintf(res.msg, "System Error");
+        }else if(retval)  //RTE
+        {
             res.ret = RTE;
-        else
-            res.ret = OK;
+            sprintf(res.msg, "Return value is not 0");
+        }else
+        {
+            res.ret = OK;  // All right
+            sprintf(res.msg, "OK");
+        }
     }
 
     return res;

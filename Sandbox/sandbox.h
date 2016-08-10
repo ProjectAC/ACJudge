@@ -29,4 +29,4 @@ Return redirection(const char *in, const char *out, const char *err);
 // And (might) restrict syscalls if <restricted> set to true
 // Redirect I/O to file <fin> <fout> and <ferr>
 // If these pointers are set to NULL, then stdin/out will be remained 
-Result run(const char *path, const char *name, Limit time, Limit space, bool restricted, const char *fin, const char *fout, const char *ferr);
+Result run(const char *path, const char *name, char *args[], Limit time, Limit space, bool restricted, const char *fin, const char *fout, const char *ferr);

@@ -12,4 +12,5 @@ typedef struct
 {
     Limit time, space;
     Return ret;
+    char msg[1000];
 } Result;

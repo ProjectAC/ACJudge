@@ -1,6 +1,6 @@
 #pragma once
 
-#define LIMIT_INFINITE -1
+#define LIMIT_INFINITE -1u 
 
 enum __return
 {
