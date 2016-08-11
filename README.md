@@ -2,6 +2,8 @@
 A Complex Judge, designed for ACOJ.  
 Currently it's Linux only. But it will soon be available on Windows.
 Mac? Huh? What are you talking about?
+  
+**Notice: This project will support C language no more!**
 
 ### [Judge]
 Scoring users' submissions.  
@@ -9,6 +11,7 @@ With ACPL script, problem designers can set their own, unique judging procedure.
 
 ### [Sandbox]
 The warden that protects the system from being damaged by user codes.  
+The executable file should (better) be in folder "Contianer/XXX", while XXX is the name of the Sandbox object.
 
 ### [Supports]
 Including database, file and management interfaces.  

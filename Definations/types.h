@@ -2,15 +2,20 @@
 
 #include "enums.h"
 
-typedef unsigned char bool;
 typedef unsigned int Limit;
 typedef struct rlimit RLimit;
 typedef struct itimerval ITimerVal;
 typedef struct rusage RUsage;
 
-typedef struct 
+struct Result 
 {
     Limit time, space;
     Return ret;
     char msg[1000];
-} Result;
+};
+
+struct Grade 
+{
+    Result res;
+    
+};
