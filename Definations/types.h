@@ -2,6 +2,7 @@
 
 #include "enums.h"
 
+typedef unsigned long long ID;
 typedef unsigned int Limit;
 typedef struct rlimit RLimit;
 typedef struct itimerval ITimerVal;

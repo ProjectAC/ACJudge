@@ -49,14 +49,18 @@ namespace ACJudge
     public:
 
         // [Interface] run
-        // Run the 
+        // Run the certain program with listed arguments
         // Limit time and space
         // And (might) restrict syscalls if <restricted> set to true
         // Redirect I/O to file <fin> <fout> and <ferr>
         // If these pointers are set to NULL, then stdin/out will be remained 
         Result run(std::string file, char *args[], Limit time, Limit space, bool restricted, std::string fin, std::string fout, std::string ferr);
 
-        // [Constructor]
-        Sandbox(std::string s);
+        // [Interface] run
+        // Same as the last function but arguments are strings
+        Result run(std::string file, string args[], Limit time, Limit space, bool restricted, std::string fin, std::string fout, std::string ferr);
+
+        // [Interface] get sandbox name
+        std::string get_name();
     };
 }

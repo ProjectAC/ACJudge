@@ -10,3 +10,18 @@ enum Return
     MLE = -3,               // Memory limit exceeded 
     RTE = -4                // Other kinds of runtime error
 };
+
+enum class Language
+{
+    CPP,                    // 
+    CPP11,                  //
+    C,                      // 
+    PYTHON,                 // 
+    ACPL                    // 
+};
+
+enum class CodeType
+{
+    USER,
+    SPJ
+};

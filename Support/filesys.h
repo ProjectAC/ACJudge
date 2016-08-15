@@ -1,0 +1,38 @@
+#pragma once
+
+#include <string>
+
+#include "../Defination/types.h"
+#include "../Defination/enums.h"
+#include "../Sandbox/sandbox.h"
+
+namespace ACJudge
+{
+    class FileSys
+    {
+        std::string tpath, spath, bpath;
+
+    public:
+        // [Interface] Get std input
+        // It will return the name of the certain file
+        std::string get_std_input(ID did);
+
+        // [Interface] Get std output
+        // It will return the name of the certain file
+        std::string get_std_output(ID did);
+
+        // [Interface] Get user output
+        // It will return the name of the certain file
+        // This method is designed for answer-submitting task 
+        std::string get_user_output(ID did);
+
+        // [Interface] Compile code
+        // It will compile code to the sandbox direction
+        // If the code is written in a interpreted language like python
+        // It will straightly copy the code to the sandbox direction
+        Return compile_code(CodeType id, Language l);
+
+        // [Constructor]
+        FileSys(ID tid, ID sid, std::string bp);
+    };
+}
