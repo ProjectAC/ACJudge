@@ -60,7 +60,7 @@ Return Sandbox::set_space_limit(Limit space)
 Return Sandbox::set_file(FILE *fp, string file, string mode)
 {
     FILE *newfp;
-    file = "../Container/" + file; 
+    file = "../Container/" + name + "/" + file; 
     if((newfp = fopen(file.c_str(), mode.c_str())) == NULL)
         return Return::ERR;
     if(dup2(fileno(newfp), fileno(fp)) == -1)
@@ -70,14 +70,14 @@ Return Sandbox::set_file(FILE *fp, string file, string mode)
 
 void Sandbox::start(string file, char *args[], Limit time, Limit space, bool restricted, string fin, string fout, string ferr)
 {
-    string s = (file[0] == '.' ? "../Container/" + file : file);
+    string s = (file[0] == '.' ? "../Container/" + name + "/" + file : file);
     char *arguments[1000];
     int argc;
     //char const *envp[] ={"PATH=/bin:/usr/bin", "TERM=console", NULL};
     
     arguments[0] = (char *)s.c_str();
-    for(argc = 1; args[argc + 1]; argc++)
-        arguments[argc] = args[argc + 1];
+    for(argc = 1; args[argc]; argc++)
+        arguments[argc] = args[argc];
     arguments[argc] = NULL;
 
     if(set_limits(time, space) == Return::ERR)
@@ -263,12 +263,22 @@ Result Sandbox::run(string file, char *args[], Limit time, Limit space, bool res
 
 Result Sandbox::run(string file, string args[], Limit time, Limit space, bool restricted, string fin, string fout, string ferr)
 {
-    char arguments[1000][1000];
-    
-    int j = 0;
-    for(auto &i : args)
-        arguments[j] = (char *)args[i].c_str(), j++;
-    arguments[j] = NULL;
+    char *arguments[1000];
+    int i;
+
+    for(i = 0; args[i] != ""; i++)
+        arguments[i] = (char *)(args[i].c_str());
+    arguments[i] = NULL;
 
     return run(file, arguments, time, space, restricted, fin, fout, ferr);
+}
+
+string Sandbox::get_name()
+{
+    return name;
+}
+
+Sandbox::Sandbox(string s)
+{
+    name = s;
 }

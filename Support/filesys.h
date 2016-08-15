@@ -2,15 +2,15 @@
 
 #include <string>
 
-#include "../Defination/types.h"
-#include "../Defination/enums.h"
+#include "../Definations/types.h"
+#include "../Definations/enums.h"
 #include "../Sandbox/sandbox.h"
 
 namespace ACJudge
 {
     class FileSys
     {
-        std::string tpath, spath, bpath;
+        std::string tpath, spath, bpath, sbn;
 
     public:
         // [Interface] Get std input
@@ -30,9 +30,9 @@ namespace ACJudge
         // It will compile code to the sandbox direction
         // If the code is written in a interpreted language like python
         // It will straightly copy the code to the sandbox direction
-        Return compile_code(CodeType id, Language l);
+        Result compile(CodeType id, Language l);
 
         // [Constructor]
-        FileSys(ID tid, ID sid, std::string bp);
+        FileSys(ID tid, ID sid, std::string sbn);
     };
 }

@@ -18,5 +18,4 @@ struct Result
 struct Grade 
 {
     Result res;
-    
 };

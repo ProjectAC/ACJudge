@@ -9,7 +9,6 @@ namespace ACJudge
     class Sandbox
     {
     private:
-        
         // Name of the sandbox
         // This is also the name of the folder the certain program will run in
         std::string name;
@@ -54,13 +53,18 @@ namespace ACJudge
         // And (might) restrict syscalls if <restricted> set to true
         // Redirect I/O to file <fin> <fout> and <ferr>
         // If these pointers are set to NULL, then stdin/out will be remained 
+        // Caution: the last member of array args[] must be NULL
         Result run(std::string file, char *args[], Limit time, Limit space, bool restricted, std::string fin, std::string fout, std::string ferr);
 
         // [Interface] run
         // Same as the last function but arguments are strings
-        Result run(std::string file, string args[], Limit time, Limit space, bool restricted, std::string fin, std::string fout, std::string ferr);
+        // Caution: the last member of array args[] must be "" (a blank string)
+        Result run(std::string file, std::string args[], Limit time, Limit space, bool restricted, std::string fin, std::string fout, std::string ferr);
 
         // [Interface] get sandbox name
         std::string get_name();
+
+        // [Constructor]
+        Sandbox(std::string s);
     };
 }
