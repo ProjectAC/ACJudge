@@ -29,7 +29,7 @@ When ACOJ Server is started, this module will be automatically started, but with
 To avoid disputes, the license of this program was switched to GPL.  
 Notice that WTFPL is not in use anymore!!!!!  
   
-Thanks [QingDaoU](https://github.com/QingdaoU/Judger) for offering such a sample of sandbox on Linux!
+Thanks [QingDaoU](https://github.com/QingdaoU/Judger) for offering such a sample of sandbox on Linux!  
 Thanks [ContestHunter](https://contesthunter.org) [Warning: the website might have failed, do not click] for default comparer!
   
 -----------------------
