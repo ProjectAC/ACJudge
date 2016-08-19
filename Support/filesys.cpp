@@ -19,6 +19,16 @@ string FileSys::get_user_output(ID did)
     return spath + i2s(did) + ".out";
 }
 
+string FileSys::get_user_err_output()
+{
+    return bpath + "user.err";
+}
+
+string FileSys::get_user_output()
+{
+    return bpath + "user.out";
+}
+
 Result FileSys::compile(CodeType id, Language l)
 {
     Sandbox box(sbn);
@@ -27,17 +37,17 @@ Result FileSys::compile(CodeType id, Language l)
 
     if(l == Language::CPP)  // GNU C++ 99
     {
-        string args[] = {"g++", path + name + ".cpp", "-o", bpath + name, "-O2", "-Wall", "-lm", "--static", "-DONLINE_JUDGE", "-std=c++11", ""};
+        string args[] = {"g++", path + name + ".cpp", "-o", bpath + name, "-O2", "-Wall", "-lm", ""};
         return box.run(args[0], args, 5000, LIMIT_INFINITE, 0, "", "", "errlog");
     }else if(l == Language::CPP11)  // GNU C++ 11 and later
     {
-        string args[] = {"g++", path + name + ".cpp", "-o", bpath + name, "-O2", "-Wall", "-lm", "--static", "-DONLINE_JUDGE", "-std=c++11", ""};
+        string args[] = {"g++", path + name + ".cpp", "-o", bpath + name, "-O2", "-Wall", "-lm", "-DONLINE_JUDGE", "-std=c++11", ""};
         return box.run(args[0], args, 5000, LIMIT_INFINITE, 0, "", "", "errlog");
     }else if(l == Language::C)  // GNU C 99
     {
-        string args[] = {"gcc", path + name + ".c", "-o", bpath + name, "-O2", "-Wall", "-lm", "--static", "-DONLINE_JUDGE", "-std=c99", ""};
+        string args[] = {"gcc", path + name + ".c", "-o", bpath + name, "-O2", "-Wall", "-lm", "-DONLINE_JUDGE", "-std=c99", ""};
         return box.run(args[0], args, 5000, LIMIT_INFINITE, 0, "", "", "errlog");
-    }else if(l == Language::PYTHON)  // Python 2
+    }else /*if(l == Language::PYTHON)  // Python 2*/
     {
         string args[] = {"cp", path + name + ".py", bpath, ""};
         return box.run(args[0], args, 5000, LIMIT_INFINITE, 0, "", "", "errlog");

@@ -23,8 +23,18 @@ namespace ACJudge
 
         // [Interface] Get user output
         // It will return the name of the certain file
-        // This method is designed for answer-submitting task 
+        // This method is designed only for answer-submitting task 
         std::string get_user_output(ID did);
+
+        // [Interface] Get user output
+        // It will return the name of the certain file
+        // This method is designed for normal code task 
+        std::string get_user_output();
+
+        // [Interface] Get user error output
+        // It will return the name of the certain file
+        // This method is designed for normal code task 
+        std::string get_user_err_output();
 
         // [Interface] Compile code
         // It will compile code to the sandbox direction

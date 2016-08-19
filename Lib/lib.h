@@ -5,7 +5,8 @@
 
 namespace ACJudge 
 {
-    std::string i2s(int i)
+    template<class Integer>
+    std::string i2s(Integer i)
     {
         std::stringstream ss;
         std::string s;

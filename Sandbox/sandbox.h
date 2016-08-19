@@ -53,6 +53,7 @@ namespace ACJudge
         // And (might) restrict syscalls if <restricted> set to true
         // Redirect I/O to file <fin> <fout> and <ferr>
         // If these pointers are set to NULL, then stdin/out will be remained 
+        // If <file> is started with "./", the sandbox will run the program in its own path, or system path otherwise
         // Caution: the last member of array args[] must be NULL
         Result run(std::string file, char *args[], Limit time, Limit space, bool restricted, std::string fin, std::string fout, std::string ferr);
 
@@ -61,8 +62,8 @@ namespace ACJudge
         // Caution: the last member of array args[] must be "" (a blank string)
         Result run(std::string file, std::string args[], Limit time, Limit space, bool restricted, std::string fin, std::string fout, std::string ferr);
 
-        // [Interface] get sandbox name
-        std::string get_name();
+        // [Interface] get path of this sandbox
+        std::string get_path();
 
         // [Constructor]
         Sandbox(std::string s);

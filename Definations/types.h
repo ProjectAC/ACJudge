@@ -1,21 +1,51 @@
 #pragma once
 
+#include <vector>
 #include "enums.h"
 
-typedef unsigned long long ID;
-typedef unsigned int Limit;
-typedef struct rlimit RLimit;
-typedef struct itimerval ITimerVal;
-typedef struct rusage RUsage;
-
-struct Result 
+namespace ACJudge
 {
-    Limit time, space;
-    Return ret;
-    char msg[1000];
-};
+    typedef unsigned long long ID;
+    typedef unsigned int Limit;
+    typedef unsigned short Score;
+    typedef unsigned short Number;
+    typedef struct rlimit RLimit;
+    typedef struct itimerval ITimerVal;
+    typedef struct rusage RUsage;
 
-struct Grade 
-{
-    Result res;
+    struct Result 
+    {
+        Limit time, space;
+        Return ret;
+        int val;
+        std::string msg;
+    };
+
+    struct Grade 
+    {
+        Result res;
+        Score score;
+    };
+    typedef std::vector<Grade> Grades;
+
+    struct Data
+    {
+        ID did;
+        Limit time, space;
+        Score score;
+    };
+
+    struct Task
+    {
+        ID tid;
+        TaskType type;
+        std::vector<Data> data;
+        Language language;
+    };
+
+    struct Submission
+    {
+        ID sid;
+        Language language;
+    };
 };

@@ -13,7 +13,10 @@
 #include <errno.h>
 #include <grp.h>
 #include <pwd.h>
+#include <iostream>
+#include <fstream>
 
+#include "../Lib/lib.h"
 #include "sandbox.h"
 
 using namespace ACJudge;
@@ -60,7 +63,7 @@ Return Sandbox::set_space_limit(Limit space)
 Return Sandbox::set_file(FILE *fp, string file, string mode)
 {
     FILE *newfp;
-    file = "../Container/" + name + "/" + file; 
+    file = get_path() + file; 
     if((newfp = fopen(file.c_str(), mode.c_str())) == NULL)
         return Return::ERR;
     if(dup2(fileno(newfp), fileno(fp)) == -1)
@@ -70,7 +73,7 @@ Return Sandbox::set_file(FILE *fp, string file, string mode)
 
 void Sandbox::start(string file, char *args[], Limit time, Limit space, bool restricted, string fin, string fout, string ferr)
 {
-    string s = (file[0] == '.' ? "../Container/" + name + "/" + file : file);
+    string s = (file[0] == '.' ? get_path() + file : file);
     char *arguments[1000];
     int argc;
     //char const *envp[] ={"PATH=/bin:/usr/bin", "TERM=console", NULL};
@@ -177,6 +180,7 @@ Result Sandbox::run(string file, char *args[], Limit time, Limit space, bool res
     // Init res
     res.time = res.space = 0;
     res.ret = Return::OK;
+    res.val = -1;
 
     // Fork for starter
     if((starter = fork()) < 0)
@@ -214,47 +218,58 @@ Result Sandbox::run(string file, char *args[], Limit time, Limit space, bool res
         if(signal == SIGALRM)  // Real time TLE
         {
             res.ret = Return::TLE;
-            sprintf(res.msg, "Real time TLE");
+            res.msg = "Real time TLE";
         }else if(signal == SIGVTALRM)  // CPU time TLE
         {
             res.ret = Return::TLE;
-            sprintf(res.msg, "CPU time TLE");
+            res.msg = "CPU time TLE";
         }else if(signal == SIGSEGV)  // Segment fault
             if(space != LIMIT_INFINITE && res.space > space)  // MLE
             {
                 res.ret = Return::MLE;
-                sprintf(res.msg, "MLE");
+                res.msg = "MLE";
             }else  // Signaled RTE
             {
-                res.ret = RTE;
-                sprintf(res.msg, "Signaled RTE");
+                res.ret = Return::RTE;
+                res.msg = "Signaled RTE";
             }
         else
         {
-            res.ret = RTE;
-            sprintf(res.msg, "Illegal syscall detected RTE");
+            res.ret = Return::RTE;
+            res.msg = "Illegal syscall detected RTE";
         }
     }else
     {
         if(space != LIMIT_INFINITE && res.space > space)  // Return::MLE
         {
             res.ret = Return::MLE;
-            sprintf(res.msg, "MLE");
+            res.msg = "MLE";
         }
 
         retval = WEXITSTATUS(status);
         if(retval == Return::ERR || retval == 256 + Return::ERR)  // System Return::ERRor
         {
+            char file[1000000];
+            ifstream fin(get_path() + "errlog");
+            fin.getline(file, 1000000, EOF);
+            
             res.ret = Return::ERR;
-            sprintf(res.msg, "System Error");
+            res.val = retval;
+            res.msg = "System Error #" + i2s(retval) + ".\nErrlog:\n" + file;;
         }else if(retval)  //RTE
         {
-            res.ret = RTE;
-            sprintf(res.msg, "RTE, Return value is %d", retval);
+            char file[1000000];
+            ifstream fin(get_path() + "errlog");
+            fin.getline(file, 1000000, EOF);
+
+            res.ret = Return::RTE;
+            res.val = retval;
+            res.msg = "Returned " + i2s(retval) + ".\nErrlog:\n" + file;
         }else
         {
             res.ret = Return::OK;  // All right
-            sprintf(res.msg, "OK");
+            res.val = 0;
+            res.msg = "OK";
         }
     }
 
@@ -273,9 +288,9 @@ Result Sandbox::run(string file, string args[], Limit time, Limit space, bool re
     return run(file, arguments, time, space, restricted, fin, fout, ferr);
 }
 
-string Sandbox::get_name()
+string Sandbox::get_path()
 {
-    return name;
+    return "../Container/" + name + "/";
 }
 
 Sandbox::Sandbox(string s)
