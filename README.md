@@ -25,8 +25,23 @@ When ACOJ Server is started, this module will be automatically started, but with
 
 ## License
 
-**GPL v2.**
-To avoid disputes, the license of this program was switched to GPL.
-Notice that WTFPL is not in use anymore!!!!!
+**GPL v3.**
+To avoid disputes, the license of this program was switched to GPL.  
+Notice that WTFPL is not in use anymore!!!!!  
+  
+Thanks [QingDaoU](https://github.com/QingdaoU/Judger) for offering such a sample of sandbox on Linux!  
+Thanks [ContestHunter](https://contesthunter.org) [Warning: the website might have failed, do not click] for default comparer!
+  
+-----------------------
 
-And thanks [QingDaoU](https://github.com/QingdaoU/Judger) for offering such a sample of sandbox on Linux!
+## Build & Run
+
+Follow these 3 steps:
+  
+    make
+    ./Release
+    ./offline
+  
+If it shows the usage of the program...  
+Voila! You've done it!
+
