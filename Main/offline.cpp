@@ -11,7 +11,7 @@ using namespace ACJudge;
 
 string result[10] = 
 {
-    "OK",
+    "Accepted",
     "System Error",
     "Time Limit Exceed",
     "Memory Limit Exceed",
@@ -85,17 +85,44 @@ The arguments are:\n\
     }
     
     int i = 1;
-    cout<<"-------------------------------------"<<endl;
+    Result totres = {0, 0, Return::OK, 0, ""};
+    Score score = 0;
+
+    cout << "-------------------------------------" << endl;
     for(auto grade: grades)
     {
+        score += grade.score;
+        totres.ret = grade.res.ret;
+        totres.time += grade.res.time;
+        totres.space = max(totres.space, grade.res.space);
+        totres.msg = grade.res.msg;
+
         cout << "[Data #" << i << " ]" << endl;
         cout << "Score: " << grade.score << endl;
         cout << "Result: " << result[-grade.res.ret] << endl;
         cout << "Time: " << grade.res.time << endl;
         cout << "Memory: " << grade.res.space << endl;
         cout << "Message:\n" << grade.res.msg << endl;
-        cout<<"-------------------------------------"<<endl;
+        cout << "-------------------------------------" << endl;
+
+        i++;
     }
+
+    i--;
+    if(type == TaskType::OI)
+    {
+        cout << "Total score: " << score << endl;
+    }
+    else if(type == TaskType::ACM)
+    {
+        if(i == cnt)
+            cout << "Accepted." << endl;
+        else
+            cout << result[-totres.ret] << " on data #" << i << endl;
+    }
+    cout << "Total Time: " << totres.time << endl;
+    cout << "Total Memory: " << totres.space << endl;
+    cout << "-------------------------------------" << endl;
 
     return 0;
 }

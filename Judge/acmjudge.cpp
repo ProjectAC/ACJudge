@@ -1,5 +1,7 @@
 #include "acmjudge.h"
 #include "../Lib/lib.h"
+#include <iostream>
+#include <cstdlib>
 
 using namespace std;
 using namespace ACJudge;
@@ -38,29 +40,33 @@ Grades ACMJudge::judge(Task task, Submission submission)
                uerr = fs.get_user_err_output(),
                args[] = {""};
         
-        res = box.run("./user", args, data.time, data.space, true, sin, uout, uerr);
+        res = box.run("./user", args, data.time, data.space, true, "../" + sin, "user.out", "user.err");
         if(res.ret != Return::OK)
         {
             grades.push_back({res, 0});
             return grades;
         }
         
-        string args2[] = {sin, sout, uout, i2s(data.score)};
+        string args2[] = {"", sin, sout, uout, i2s(data.score), ""};
         if(task.language != Language::NONE)
-            res2 = box.run("./spj", args2, 5000, LIMIT_INFINITE, true, "", "", "");
+            args2[0] = "./spj";
         else
-            res2 = box.run("../default_compare", args2, 5000, LIMIT_INFINITE, true, "", "", "");
+            args2[0] = "../default_judge";
+        res2 = box.run("../default_judge", args2, 5000, LIMIT_INFINITE, true, "", "", "errlog2");
+
         if((res2.ret != Return::RTE && res2.ret != Return::OK) || res2.val < 0)
+        {
             grades.push_back({{res.time, res.space, Return::ERR, 0, "System Error while judging. \n" + res.msg}, 0});
-        else
+            return grades;
+        }else
         {
             if(res2.val != data.score)
             {
                 res.ret = Return::WA;
                 grades.push_back({res, (Score)res2.val});
                 return grades;
-            }
-            grades.push_back({res, (Score)res2.val});
+            }else
+                grades.push_back({res, (Score)res2.val});
         }
     }
 
