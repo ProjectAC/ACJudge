@@ -30,7 +30,8 @@ To avoid disputes, the license of this program was switched to GPL.
 Notice that WTFPL is not in use anymore!!!!!  
   
 Thanks [QingDaoU](https://github.com/QingdaoU/Judger) for offering such a sample of sandbox on Linux!  
-Thanks [ContestHunter](https://contesthunter.org) [Warning: the website might have failed, do not click] for default comparer!
+Thanks [ContestHunter](https://contesthunter.org) for default comparer!
+*ContestHunter is OK now! Awesome!*
   
 -----------------------
 
