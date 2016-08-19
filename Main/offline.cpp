@@ -88,7 +88,7 @@ The arguments are:\n\
     Result totres = {0, 0, Return::OK, 0, ""};
     Score score = 0;
 
-    cout << "-------------------------------------" << endl;
+    cout << "------------------------------------------------" << endl;
     for(auto grade: grades)
     {
         score += grade.score;
@@ -97,16 +97,16 @@ The arguments are:\n\
         totres.space = max(totres.space, grade.res.space);
         totres.msg = grade.res.msg;
 
-        cout << "[Data #" << i << " ]" << endl;
-        cout << "Score: " << grade.score << endl;
-        cout << "Result: " << result[-grade.res.ret] << endl;
-        cout << "Time: " << grade.res.time << endl;
-        cout << "Memory: " << grade.res.space << endl;
-        cout << "Message:\n" << grade.res.msg << endl;
-        cout << "-------------------------------------" << endl;
+        cout << "[Data #" << i << " ] ";
+        cout << result[-grade.res.ret];
+        if(type == TaskType::OI) cout << "(" << grade.score << ")";
+        cout << ", " << grade.res.time << "ms, ";
+        cout << grade.res.space << "KB." << endl;
+        //cout << "Message: \n" << grade.res.msg << endl;
 
         i++;
     }
+    cout << "------------------------------------------------" << endl;
 
     i--;
     if(type == TaskType::OI)
@@ -116,13 +116,15 @@ The arguments are:\n\
     else if(type == TaskType::ACM)
     {
         if(i == cnt)
-            cout << "Accepted." << endl;
+            cout << "Accepted" << endl;
         else
             cout << result[-totres.ret] << " on data #" << i << endl;
     }
     cout << "Total Time: " << totres.time << endl;
     cout << "Total Memory: " << totres.space << endl;
-    cout << "-------------------------------------" << endl;
+    cout << "------------------------------------------------" << endl;
+    cout << "Message:\n" << totres.msg << endl;
+    cout << "------------------------------------------------" << endl;
 
     return 0;
 }

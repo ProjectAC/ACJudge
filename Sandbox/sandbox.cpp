@@ -218,32 +218,42 @@ Result Sandbox::run(string file, char *args[], Limit time, Limit space, bool res
         if(signal == SIGALRM)  // Real time TLE
         {
             res.ret = Return::TLE;
-            res.msg = "Real time TLE";
+            res.msg = "Real time TLE.";
         }else if(signal == SIGVTALRM)  // CPU time TLE
         {
             res.ret = Return::TLE;
-            res.msg = "CPU time TLE";
+            res.msg = "CPU time TLE.";
         }else if(signal == SIGSEGV)  // Segment fault
             if(space != LIMIT_INFINITE && res.space > space)  // MLE
             {
                 res.ret = Return::MLE;
-                res.msg = "MLE";
+                res.msg = "MLE.";
             }else  // Signaled RTE
             {
                 res.ret = Return::RTE;
-                res.msg = "Signaled RTE";
+                res.msg = "Signaled RTE.\nStack overflow, NULL pointer or something like that.";
             }
+        else if(signal == SIGFPE)
+        {
+            res.ret = Return::RTE;
+            res.msg = "Signaled RTE.\nFloating point error.";
+        } 
+        else if(signal == SIGKILL)
+        {
+            res.ret = Return::MLE;
+            res.msg = "Process killed (Memory Limit Exceed).";
+        }
         else
         {
             res.ret = Return::RTE;
-            res.msg = "Illegal syscall detected RTE";
+            res.msg = "Syscall failed.\nThis might happen when memory limit exceeded.\nBut it also might caused by an illegal syscall, such as fork.";
         }
     }else
     {
         if(space != LIMIT_INFINITE && res.space > space)  // Return::MLE
         {
             res.ret = Return::MLE;
-            res.msg = "MLE";
+            res.msg = "MLE.";
         }
 
         retval = WEXITSTATUS(status);
@@ -269,7 +279,7 @@ Result Sandbox::run(string file, char *args[], Limit time, Limit space, bool res
         {
             res.ret = Return::OK;  // All right
             res.val = 0;
-            res.msg = "OK";
+            res.msg = "Process exited normally.";
         }
     }
 
