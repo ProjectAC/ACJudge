@@ -1,6 +1,6 @@
 # ACJudge
 A Complex Judge, designed for ACOJ.  
-Currently it's Linux only. But it will soon be available on Windows.
+Currently it's Linux only. But it will soon be available on Windows.  
 Mac? Huh? What are you talking about?
   
 **Notice: This project will support C language no more!**
@@ -25,6 +25,8 @@ When ACOJ Server is started, this module will be automatically started, but with
 
 ## License
 
-Have you ever heard of WTFPL?  
-If not, [here](https://en.wikipedia.org/wiki/WTFPL) it goes.  
-Never mind, just enjoy it!
+**GPL v2.**
+To avoid disputes, the license of this program was switched to GPL.
+Notice that WTFPL is not in use anymore!!!!!
+
+And thanks [QingDaoU](https://github.com/QingdaoU/Judger) for offering such a sample of sandbox on Linux!
