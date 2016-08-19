@@ -11,7 +11,7 @@ With ACPL script, problem designers can set their own, unique judging procedure.
 
 ### [Sandbox]
 The warden that protects the system from being damaged by user codes.  
-The executable file should (better) be in folder "Contianer/XXX", while XXX is the name of the Sandbox object.
+The executable file should (better) be in folder "Container/XXX", while XXX is the name of the Sandbox object.
 
 ### [Supports]
 Including database, file and management interfaces.  
