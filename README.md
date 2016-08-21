@@ -37,10 +37,11 @@ Thanks [ContestHunter](https://contesthunter.org) for default comparer!
 
 ## Build & Run
 
-Follow these 3 steps:
+Before build, please make sure you have installed libseccomp, as it is the main part of the sandbox.  
+Then follow these 3 steps:
   
     make
-    ./Release
+    cd Release
     ./offline
   
 If it shows the usage of the program...  
