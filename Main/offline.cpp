@@ -3,21 +3,22 @@
 #include "../Definations/types.h"
 #include "../Definations/enums.h"
 #include <cstdio>
+#include <algorithm>
 #include <iostream>
 #include <vector>
 
 using namespace std;
 using namespace ACJudge;
 
-string result[10] = 
+wstring result[10] = 
 {
-    "Accepted",
-    "System Error",
-    "Time Limit Exceed",
-    "Memory Limit Exceed",
-    "Runtime Error",
-    "Compilation Error",
-    "Wrong Answer"
+    L"Accepted",
+    L"System Error",
+    L"Time Limit Exceed",
+    L"Memory Limit Exceed",
+    L"Runtime Error",
+    L"Compilation Error",
+    L"Wrong Answer"
 };
 
 // The arguments are:
@@ -30,11 +31,11 @@ string result[10] =
 // 7. memory limit (KB)
 // 8. user language
 // 9. spj language (if this argument is -1, the judge will use default comparer)
-int main(int argc, char *args[])
+int wmain(int argc, wchar_t *args[])
 {
     if(argc == 1)
     {
-        cout << "\
+        cout << L"\
 The arguments are:\n\
 1. judge name\n\
 2. tid\n\
@@ -54,15 +55,20 @@ The arguments are:\n\
     Number cnt;
     Limit time, space;
     
-    string name(args[1]);
-    sscanf(args[2], "%llu", &tid);
-    sscanf(args[3], "%llu", &sid);
-    sscanf(args[4], "%d", &type);
-    sscanf(args[5], "%hu", &cnt);
-    sscanf(args[6], "%u", &time);
-    sscanf(args[7], "%u", &space);
-    sscanf(args[8], "%d", &usrlan);
-    sscanf(args[9], "%d", &spjlan);
+    wstring name(args[1]);
+#if defined WINDOWS
+	swscanf(args[2], L"%I64u", &tid);
+	swscanf(args[3], L"%I64u", &sid);
+#elif defined _NIX
+    swscanf(args[2], L"%llu", &tid);
+    swscanf(args[3], L"%llu", &sid);
+#endif
+    swscanf(args[4], L"%d", &type);
+    swscanf(args[5], L"%hu", &cnt);
+    swscanf(args[6], L"%u", &time);
+    swscanf(args[7], L"%u", &space);
+    swscanf(args[8], L"%d", &usrlan);
+    swscanf(args[9], L"%d", &spjlan);
 
     vector<Data> data;
     for(Number i = 1; i <= cnt; i++)
@@ -85,10 +91,10 @@ The arguments are:\n\
     }
     
     int i = 1;
-    Result totres = {0, 0, Return::OK, 0, ""};
+    Result totres = {0, 0, Return::OK, 0, L""};
     Score score = 0;
 
-    cout << "------------------------------------------------" << endl;
+    wcout << L"------------------------------------------------" << endl;
     for(auto grade: grades)
     {
         score += grade.score;
@@ -97,34 +103,34 @@ The arguments are:\n\
         totres.space = max(totres.space, grade.res.space);
         totres.msg = grade.res.msg;
 
-        cout << "[Data #" << i << " ] ";
-        cout << result[-grade.res.ret];
-        if(type == TaskType::OI) cout << "(" << grade.score << ")";
-        cout << ", " << grade.res.time << "ms, ";
-        cout << grade.res.space << "KB." << endl;
-        //cout << "Message: \n" << grade.res.msg << endl;
+        wcout << L"[Data #" << i << L" ] L";
+        wcout << result[-grade.res.ret];
+        if(type == TaskType::OI) wcout << L"(" << grade.score << L")";
+        wcout << L", L" << grade.res.time << L"ms, L";
+        wcout << grade.res.space << L"KB." << endl;
+        //cout << L"Message: \n" << grade.res.msg << endl;
 
         i++;
     }
-    cout << "------------------------------------------------" << endl;
+    wcout << L"------------------------------------------------" << endl;
 
     i--;
     if(type == TaskType::OI)
     {
-        cout << "Total score: " << score << endl;
+        wcout << L"Total score: L" << score << endl;
     }
     else if(type == TaskType::ACM)
     {
         if(i == cnt)
-            cout << "Accepted" << endl;
+            wcout << L"Accepted" << endl;
         else
-            cout << result[-totres.ret] << " on data #" << i << endl;
+            wcout << result[-totres.ret] << L" on data #" << i << endl;
     }
-    cout << "Total Time: " << totres.time << endl;
-    cout << "Total Memory: " << totres.space << endl;
-    cout << "------------------------------------------------" << endl;
-    cout << "Message:\n" << totres.msg << endl;
-    cout << "------------------------------------------------" << endl;
+    wcout << L"Total Time: L" << totres.time << endl;
+    wcout << L"Total Memory: L" << totres.space << endl;
+    wcout << L"------------------------------------------------" << endl;
+    wcout << L"Message:\n" << totres.msg << endl;
+    wcout << L"------------------------------------------------" << endl;
 
     return 0;
 }

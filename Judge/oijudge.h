@@ -8,6 +8,6 @@ namespace ACJudge
         // [Interface] 
         Grades judge(Task task, Submission submission);
         // [Constructor]
-        OIJudge(std::string name) : Judge(name) {}
+        OIJudge(std::wstring name) : Judge(name) {}
     };
 }

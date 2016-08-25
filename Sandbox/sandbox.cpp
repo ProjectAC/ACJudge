@@ -1,3 +1,211 @@
+#include "../Definations/platform.h"
+#include "../Lib/lib.h"
+#include "sandbox.h"
+
+using namespace ACJudge;
+using namespace std;
+
+#if defined WINDOWS
+
+JOBOBJECT_EXTENDED_LIMIT_INFORMATION Sandbox::set_limits(Limit time, Limit space, bool restricted)
+{
+	JOBOBJECT_EXTENDED_LIMIT_INFORMATION ex_lim;
+
+	// Initialize
+	ZeroMemory(&ex_lim, sizeof(ex_lim));
+
+	// Memory limit
+	if (space != LIMIT_INFINITE)
+	{
+		ex_lim.BasicLimitInformation.LimitFlags |= JOB_OBJECT_LIMIT_JOB_MEMORY;
+		ex_lim.JobMemoryLimit = SIZE_T((space + 1000000) * 1000);
+	}
+
+	// Time limit
+	if (time != LIMIT_INFINITE)
+	{
+		ex_lim.BasicLimitInformation.LimitFlags |= JOB_OBJECT_LIMIT_JOB_TIME;
+		ex_lim.BasicLimitInformation.PerJobUserTimeLimit.QuadPart = time * 10000;
+	}
+
+	if (restricted)
+	{
+		// Set maximum porcess number
+		ex_lim.BasicLimitInformation.LimitFlags |= JOB_OBJECT_LIMIT_ACTIVE_PROCESS;
+		ex_lim.BasicLimitInformation.ActiveProcessLimit = 1;
+
+		// Other limits
+		ex_lim.BasicLimitInformation.LimitFlags |=
+			JOB_OBJECT_LIMIT_DIE_ON_UNHANDLED_EXCEPTION |
+			JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE |
+			JOB_OBJECT_LIMIT_BREAKAWAY_OK;
+	}
+
+	return ex_lim;
+}
+
+JOBOBJECT_BASIC_UI_RESTRICTIONS Sandbox::set_rules_UI(bool restricted)
+{
+	JOBOBJECT_BASIC_UI_RESTRICTIONS bs_ui;
+	bs_ui.UIRestrictionsClass = 0;
+	if (restricted)
+	{
+		bs_ui.UIRestrictionsClass =
+			JOB_OBJECT_UILIMIT_EXITWINDOWS |
+			JOB_OBJECT_UILIMIT_READCLIPBOARD |
+			JOB_OBJECT_UILIMIT_WRITECLIPBOARD |
+			JOB_OBJECT_UILIMIT_SYSTEMPARAMETERS |
+			JOB_OBJECT_UILIMIT_DISPLAYSETTINGS |
+			JOB_OBJECT_UILIMIT_GLOBALATOMS |
+			JOB_OBJECT_UILIMIT_DESKTOP |
+			JOB_OBJECT_UILIMIT_HANDLES;
+	}
+	return bs_ui;
+}
+
+STARTUPINFO Sandbox::redirection(wstring in, wstring out, wstring err)
+{
+	//创建IO接口
+	STARTUPINFO s = { sizeof(s) };
+	ZeroMemory(&s, sizeof(s));
+	s.cb = sizeof(STARTUPINFO);
+	s.dwFlags = STARTF_USESTDHANDLES;
+
+	//创建文件
+	if (in != L"")
+	{
+		HANDLE fin = CreateFile(in.c_str(),
+			GENERIC_READ,
+			FILE_SHARE_READ,
+			0,
+			CREATE_ALWAYS,
+			FILE_FLAG_OVERLAPPED,
+			0);
+		s.hStdInput = fin;
+	}
+	if (out != L"")
+	{
+		HANDLE fout = CreateFile(out.c_str(),
+			GENERIC_WRITE,
+			FILE_SHARE_READ,
+			0,
+			CREATE_ALWAYS,
+			FILE_FLAG_OVERLAPPED,
+			0);
+		s.hStdInput = fout;
+	}
+	if (err != L"")
+	{
+		HANDLE ferr = CreateFile(err.c_str(),
+			GENERIC_WRITE,
+			FILE_SHARE_READ,
+			0,
+			CREATE_ALWAYS,
+			FILE_FLAG_OVERLAPPED,
+			0);
+		s.hStdError = ferr;
+	}
+
+	return s;
+}
+
+Result Sandbox::run(std::wstring file, wchar_t *args[], Limit time, Limit space, bool restricted, std::wstring fin, std::wstring fout, std::wstring ferr)
+{
+	// Initialize
+	JOBOBJECT_EXTENDED_LIMIT_INFORMATION ex_lim = set_limits(time, space, restricted);
+	JOBOBJECT_BASIC_UI_RESTRICTIONS bs_ui = set_rules_UI(restricted);
+	STARTUPINFO s = redirection(fin, fout, ferr);
+	_PROCESS_INFORMATION p;
+
+	// Init res
+	Result res;
+	res.time = res.space = 0;
+	res.ret = Return::ERR;
+	res.val = -1;
+	res.msg = L"Unknown system error.";
+
+	// Create JOB object
+	HANDLE job = CreateJobObject(NULL, NULL);
+	SetInformationJobObject(job, JobObjectExtendedLimitInformation, &ex_lim, sizeof(ex_lim));
+	SetInformationJobObject(job, JobObjectBasicUIRestrictions, &bs_ui, sizeof(bs_ui));
+
+	// Operate arguments
+	wchar_t *str = new wchar_t[1000000];
+	wcscpy(str, name.c_str());
+	for (int i = 0; args[i]; i++)
+		wcscat(str, L" "), wcscat(str, args[i]);
+
+	// Create process
+	DWORD ret =
+		CreateProcess(NULL, str,
+			NULL,
+			NULL,
+			FALSE,
+			CREATE_SUSPENDED,
+			NULL,
+			NULL,
+			&s,
+			&p);
+	if (!ret)
+	{
+		res.ret = Return::ERR;
+		res.msg = L"Error while creating subprocess.";
+		return res;
+	}
+
+	// Start process
+	AssignProcessToJobObject(job, p.hProcess);
+	ResumeThread(p.hThread);
+
+	// Start timing
+	HANDLE handles[2];
+	handles[0] = p.hProcess;
+	handles[1] = job;
+	ret = WaitForMultipleObjects(2, handles, FALSE, time * 3);
+
+	switch (ret)
+	{
+	case WAIT_OBJECT_0:
+		// Process exited normally
+		GetExitCodeProcess(p.hProcess, (LPDWORD)&res.val);
+		if (res.val == 1816)  // CPU time TLE
+		{
+			res.ret = Return::TLE;
+			res.msg = L"CPU time TLE.";
+		}
+		else if (res.val == 3221225495u)  // Memory limit exceed
+		{
+			res.ret = Return::MLE;
+			res.msg = L"MLE.";
+		}
+		else if (res.val)  // Return value not zero
+		{
+			res.ret = Return::RTE;
+			res.msg = L"Runtime error. Return code is " + i2s(res.val) + L".";
+		}
+		else  // It seems all right
+		{
+			res.ret = Return::OK;
+			res.msg = L"Process exited normally.";
+		}
+		break;
+
+	case WAIT_TIMEOUT:  // Real time TLE
+		res.ret = Return::TLE;
+		res.msg = L"Real time TLE.";
+		break;
+
+	case WAIT_FAILED:  // System error
+		res.ret = Return::ERR;
+		res.msg = L"Error while waiting.";
+		break;
+	}
+
+	return res;
+}
+
+#elif defined _NIX
+
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
@@ -15,12 +223,6 @@
 #include <pwd.h>
 #include <iostream>
 #include <fstream>
-
-#include "../Lib/lib.h"
-#include "sandbox.h"
-
-using namespace ACJudge;
-using namespace std;
 
 Return Sandbox::set_time_limit(Limit time)
 {
@@ -60,25 +262,25 @@ Return Sandbox::set_space_limit(Limit space)
     return Return::OK;
 }
 
-Return Sandbox::set_file(FILE *fp, string file, string mode)
+Return Sandbox::set_file(FILE *fp, wstring file, wstring mode)
 {
     FILE *newfp;
     file = get_path() + file; 
-    if((newfp = fopen(file.c_str(), mode.c_str())) == NULL)
+    if((newfp = fopen((const char*)file.c_str(), (const char*)mode.c_str())) == NULL)
         return Return::ERR;
     if(dup2(fileno(newfp), fileno(fp)) == -1)
         return Return::ERR;
     return Return::OK;
 }
 
-void Sandbox::start(string file, char *args[], Limit time, Limit space, bool restricted, string fin, string fout, string ferr)
+void Sandbox::start(wstring file, wchar_t *args[], Limit time, Limit space, bool restricted, wstring fin, wstring fout, wstring ferr)
 {
-    string s = (file[0] == '.' ? get_path() + file : file);
-    char *arguments[1000];
+    wstring s = (file[0] == '.' ? get_path() + file : file);
+    wchar_t *arguments[1000];
     int argc;
-    //char const *envp[] ={"PATH=/bin:/usr/bin", "TERM=console", NULL};
+    //wchar_t const *envp[] ={"PATH=/bin:/usr/bin", L"TERM=console", NULL};
     
-    arguments[0] = (char *)s.c_str();
+    arguments[0] = (wchar_t *)s.c_str();
     for(argc = 1; args[argc]; argc++)
         arguments[argc] = args[argc];
     arguments[argc] = NULL;
@@ -96,13 +298,13 @@ void Sandbox::start(string file, char *args[], Limit time, Limit space, bool res
     }
 }
 
-Return Sandbox::redirection(string in, string out, string err)
+Return Sandbox::redirection(wstring in, wstring out, wstring err)
 {
-    if(in  != "" && set_file(stdin , in , "r") == Return::ERR)
+    if(in  != L"" && set_file(stdin , in , L"r") == Return::ERR)
         return Return::ERR;
-    if(out != "" && set_file(stdout, out, "w") == Return::ERR)
+    if(out != L"" && set_file(stdout, out, L"w") == Return::ERR)
         return Return::ERR;
-    if(err != "" && set_file(stderr, err, "w") == Return::ERR)
+    if(err != L"" && set_file(stderr, err, L"w") == Return::ERR)
         return Return::ERR;
     return Return::OK;
 }
@@ -133,7 +335,7 @@ Return Sandbox::set_gid()
     return Return::OK;
 }
 
-Return Sandbox::set_rules(string file)
+Return Sandbox::set_rules(wstring file)
 {
     // White list
     int whitelist[] = {SCMP_SYS(read), SCMP_SYS(fstat),
@@ -170,7 +372,7 @@ Return Sandbox::set_rules(string file)
     return Return::OK;
 }
 
-Result Sandbox::run(string file, char *args[], Limit time, Limit space, bool restricted, string fin, string fout, string ferr)
+Result Sandbox::run(wstring file, wchar_t *args[], Limit time, Limit space, bool restricted, wstring fin, wstring fout, wstring ferr)
 {
     int starter;
     int pid, status, signal, retval;
@@ -218,92 +420,94 @@ Result Sandbox::run(string file, char *args[], Limit time, Limit space, bool res
         if(signal == SIGALRM)  // Real time TLE
         {
             res.ret = Return::TLE;
-            res.msg = "Real time TLE.";
+            res.msg = L"Real time TLE.";
         }else if(signal == SIGVTALRM)  // CPU time TLE
         {
             res.ret = Return::TLE;
-            res.msg = "CPU time TLE.";
+            res.msg = L"CPU time TLE.";
         }else if(signal == SIGSEGV)  // Segment fault
             if(space != LIMIT_INFINITE && res.space > space)  // MLE
             {
                 res.ret = Return::MLE;
-                res.msg = "MLE.";
+                res.msg = L"MLE.";
             }else  // Signaled RTE
             {
                 res.ret = Return::RTE;
-                res.msg = "Signaled RTE.\nStack overflow, NULL pointer or something like that.";
+                res.msg = L"Signaled RTE.\nStack overflow, NULL pointer or something like that.";
             }
         else if(signal == SIGFPE)
         {
             res.ret = Return::RTE;
-            res.msg = "Signaled RTE.\nFloating point error.";
+            res.msg = L"Signaled RTE.\nFloating point error.";
         } 
         else if(signal == SIGKILL)
         {
             res.ret = Return::MLE;
-            res.msg = "Process killed (Memory Limit Exceed).";
+            res.msg = L"Process killed (Memory Limit Exceed).";
         }
         else
         {
             res.ret = Return::RTE;
-            res.msg = "Syscall failed.\nThis might happen when memory limit exceeded.\nBut it also might caused by an illegal syscall, such as fork.";
+            res.msg = L"Syscall failed.\nThis might happen when memory limit exceeded.\nBut it also might caused by an illegal syscall, such as fork.";
         }
     }else
     {
         if(space != LIMIT_INFINITE && res.space > space)  // Return::MLE
         {
             res.ret = Return::MLE;
-            res.msg = "MLE.";
+            res.msg = L"MLE.";
         }
 
         retval = WEXITSTATUS(status);
         if(retval == Return::ERR || retval == 256 + Return::ERR)  // System Return::ERRor
         {
-            char file[1000000];
-            ifstream fin(get_path() + "errlog");
+            wchar_t file[1000000];
+            ifstream fin(get_path() + L"errlog");
             fin.getline(file, 1000000, EOF);
             
             res.ret = Return::ERR;
             res.val = retval;
-            res.msg = "System Error #" + i2s(retval) + ".\nErrlog:\n" + file;;
+            res.msg = L"System Error #" + i2s(retval) + L".\nErrlog:\n" + file;;
         }else if(retval)  //RTE
         {
-            char file[1000000];
-            ifstream fin(get_path() + "errlog");
+            wchar_t file[1000000];
+            ifstream fin(get_path() + L"errlog");
             fin.getline(file, 1000000, EOF);
 
             res.ret = Return::RTE;
             res.val = retval;
-            res.msg = "Returned " + i2s(retval) + ".\nErrlog:\n" + file;
+            res.msg = L"Returned " + i2s(retval) + L".\nErrlog:\n" + file;
         }else
         {
             res.ret = Return::OK;  // All right
             res.val = 0;
-            res.msg = "Process exited normally.";
+            res.msg = L"Process exited normally.";
         }
     }
 
     return res;
 }
 
-Result Sandbox::run(string file, string args[], Limit time, Limit space, bool restricted, string fin, string fout, string ferr)
+#endif
+
+Result Sandbox::run(wstring file, wstring args[], Limit time, Limit space, bool restricted, wstring fin, wstring fout, wstring ferr)
 {
-    char *arguments[1000];
+    wchar_t *arguments[1000];
     int i;
 
-    for(i = 0; args[i] != ""; i++)
-        arguments[i] = (char *)(args[i].c_str());
+    for(i = 0; args[i] != L""; i++)
+        arguments[i] = (wchar_t *)(args[i].c_str());
     arguments[i] = NULL;
 
     return run(file, arguments, time, space, restricted, fin, fout, ferr);
 }
 
-string Sandbox::get_path()
+wstring Sandbox::get_path()
 {
-    return "../Container/" + name + "/";
+    return L"../Container/" + name + L"/";
 }
 
-Sandbox::Sandbox(string s)
+Sandbox::Sandbox(wstring s)
 {
     name = s;
 }

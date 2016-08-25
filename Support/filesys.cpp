@@ -4,60 +4,60 @@
 using namespace std;
 using namespace ACJudge;
 
-string FileSys::get_std_input(ID did)
+wstring FileSys::get_std_input(ID did)
 {
-    return tpath + i2s(did) + ".in";
+    return tpath + i2s(did) + L".in";
 }
 
-string FileSys::get_std_output(ID did)
+wstring FileSys::get_std_output(ID did)
 {
-    return tpath + i2s(did) + ".out";
+    return tpath + i2s(did) + L".out";
 }
 
-string FileSys::get_user_output(ID did)
+wstring FileSys::get_user_output(ID did)
 {
-    return spath + i2s(did) + ".out";
+    return spath + i2s(did) + L".out";
 }
 
-string FileSys::get_user_err_output()
+wstring FileSys::get_user_err_output()
 {
-    return bpath + "user.err";
+    return bpath + L"user.err";
 }
 
-string FileSys::get_user_output()
+wstring FileSys::get_user_output()
 {
-    return bpath + "user.out";
+    return bpath + L"user.out";
 }
 
 Result FileSys::compile(CodeType id, Language l)
 {
     Sandbox box(sbn);
-    string path = (id == CodeType::USER ? spath : tpath);
-    string name = (id == CodeType::USER ? "user" : "spj");
+    wstring path = (id == CodeType::USER ? spath : tpath);
+    wstring name = (id == CodeType::USER ? L"user" : L"spj");
 
     if(l == Language::CPP)  // GNU C++ 99
     {
-        string args[] = {"g++", path + name + ".cpp", "-o", bpath + name, "-O2", "-Wall", "-lm", ""};
-        return box.run(args[0], args, 5000, LIMIT_INFINITE, 0, "", "", "errlog");
+        wstring args[] = {L"g++", path + name + L".cpp", L"-o", bpath + name, L"-O2", L"-Wall", L"-lm", L""};
+        return box.run(args[0], args, 5000, LIMIT_INFINITE, 0, L"", L"", L"errlog");
     }else if(l == Language::CPP11)  // GNU C++ 11 and later
     {
-        string args[] = {"g++", path + name + ".cpp", "-o", bpath + name, "-O2", "-Wall", "-lm", "-DONLINE_JUDGE", "-std=c++11", ""};
-        return box.run(args[0], args, 5000, LIMIT_INFINITE, 0, "", "", "errlog");
+        wstring args[] = {L"g++", path + name + L".cpp", L"-o", bpath + name, L"-O2", L"-Wall", L"-lm", L"-DONLINE_JUDGE", L"-std=c++11", L""};
+        return box.run(args[0], args, 5000, LIMIT_INFINITE, 0, L"", L"", L"errlog");
     }else if(l == Language::C)  // GNU C 99
     {
-        string args[] = {"gcc", path + name + ".c", "-o", bpath + name, "-O2", "-Wall", "-lm", "-DONLINE_JUDGE", "-std=c99", ""};
-        return box.run(args[0], args, 5000, LIMIT_INFINITE, 0, "", "", "errlog");
+        wstring args[] = {L"gcc", path + name + L".c", L"-o", bpath + name, L"-O2", L"-Wall", L"-lm", L"-DONLINE_JUDGE", L"-std=c99", L""};
+        return box.run(args[0], args, 5000, LIMIT_INFINITE, 0, L"", L"", L"errlog");
     }else /*if(l == Language::PYTHON)  // Python 2*/
     {
-        string args[] = {"cp", path + name + ".py", bpath, ""};
-        return box.run(args[0], args, 5000, LIMIT_INFINITE, 0, "", "", "errlog");
+        wstring args[] = {L"cp", path + name + L".py", bpath, L""};
+        return box.run(args[0], args, 5000, LIMIT_INFINITE, 0, L"", L"", L"errlog");
     }
 }
 
-FileSys::FileSys(ID tid, ID sid, string sbn)
+FileSys::FileSys(ID tid, ID sid, wstring sbn)
 {
-    spath = "../Data/Submissions/" + i2s(sid) + "/";
-    tpath = "../Data/Tasks/" + i2s(tid) + "/";
-    bpath = "../Container/" + sbn + "/";
+    spath = L"../Data/Submissions/" + i2s(sid) + L"/";
+    tpath = L"../Data/Tasks/" + i2s(tid) + L"/";
+    bpath = L"../Container/" + sbn + L"/";
     FileSys::sbn = sbn;
 }

@@ -18,7 +18,7 @@ namespace ACJudge
         Limit time, space;
         Return ret;
         int val;
-        std::string msg;
+        std::wstring msg;
     };
 
     struct Grade 

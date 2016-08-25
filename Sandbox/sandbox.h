@@ -1,6 +1,8 @@
 #pragma once
 
 #include <string>
+#include <Windows.h>
+#include "../Definations/platform.h"
 #include "../Definations/types.h"
 #include "../Definations/enums.h"
 
@@ -11,8 +13,21 @@ namespace ACJudge
     private:
         // Name of the sandbox
         // This is also the name of the folder the certain program will run in
-        std::string name;
+        std::wstring name;
 
+#if defined WINDOWS
+
+		// Set limits
+		// Tags will be saved in 
+		JOBOBJECT_EXTENDED_LIMIT_INFORMATION set_limits(Limit time, Limit space, bool restricted);
+
+		// Set UI restrictions
+		JOBOBJECT_BASIC_UI_RESTRICTIONS set_rules_UI(bool restricted);
+
+		// Redirect file input/output/error target
+		STARTUPINFO redirection(wstring in, wstring out, wstring err);
+
+#elif defined _NIX
         // Set time limit
         // Both with setitimer and setrlimit
         // Here time is CPU time, and stime is actual time
@@ -23,11 +38,11 @@ namespace ACJudge
         Return set_space_limit(Limit space);
 
         // Redirect I/O flow <file> to file with name <name>
-        Return set_file(FILE *fp, std::string file, std::string mode);
+        Return set_file(FILE *fp, std::wstring file, std::wstring mode);
 
         // Starter
         // This is what the starter have to do before execve
-        void start(std::string file, char *args[], Limit time, Limit space, bool restricted, std::string fin, std::string fout, std::string ferr);
+        void start(std::wstring file, wchar_t *args[], Limit time, Limit space, bool restricted, std::wstring fin, std::wstring fout, std::wstring ferr);
 
         // Set time and space limits for current process
         // Always called immediately after forking
@@ -37,13 +52,14 @@ namespace ACJudge
         // Called when <restricted> is true
         // [Thanks] QingDaoU Judger
         // link: https://github.com/QingdaoU/Judger
-        Return set_rules(std::string s);
+        Return set_rules(std::wstring s);
 
         // Set group of current process to guest for safety
         Return set_gid();
 
         // Redirect file input/output/error target
-        Return redirection(std::string in, std::string out, std::string err);
+        Return redirection(std::wstring in, std::wstring out, std::wstring err);
+#endif
 
     public:
 
@@ -53,19 +69,19 @@ namespace ACJudge
         // And (might) restrict syscalls if <restricted> set to true
         // Redirect I/O to file <fin> <fout> and <ferr>
         // If these pointers are set to NULL, then stdin/out will be remained 
-        // If <file> is started with "./", the sandbox will run the program in its own path, or system path otherwise
+        // If <file> is started with L"./", the sandbox will run the program in its own path, or system path otherwise
         // Caution: the last member of array args[] must be NULL
-        Result run(std::string file, char *args[], Limit time, Limit space, bool restricted, std::string fin, std::string fout, std::string ferr);
+        Result run(std::wstring file, wchar_t *args[], Limit time, Limit space, bool restricted, std::wstring fin, std::wstring fout, std::wstring ferr);
 
         // [Interface] run
-        // Same as the last function but arguments are strings
-        // Caution: the last member of array args[] must be "" (a blank string)
-        Result run(std::string file, std::string args[], Limit time, Limit space, bool restricted, std::string fin, std::string fout, std::string ferr);
+        // Same as the last function but arguments are wstrings
+        // Caution: the last member of array args[] must be L"" (a blank wstring)
+        Result run(std::wstring file, std::wstring args[], Limit time, Limit space, bool restricted, std::wstring fin, std::wstring fout, std::wstring ferr);
 
         // [Interface] get path of this sandbox
-        std::string get_path();
+        std::wstring get_path();
 
         // [Constructor]
-        Sandbox(std::string s);
+        Sandbox(std::wstring s);
     };
 }

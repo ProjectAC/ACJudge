@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string>
-
 #include "../Definations/types.h"
 #include "../Definations/enums.h"
 #include "../Sandbox/sandbox.h"
@@ -12,7 +11,7 @@ namespace ACJudge
     class Judge
     {
     protected:
-        std::string name;
+        std::wstring name;
         
     public:
         // [Interface] judge
@@ -22,6 +21,6 @@ namespace ACJudge
 
         // [Constructor] Judge
         // Init the judge and set its name
-        Judge(std::string s);
+        Judge(std::wstring s);
     };
 }

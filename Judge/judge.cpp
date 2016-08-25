@@ -3,7 +3,7 @@
 using namespace std;
 using namespace ACJudge;
 
-Judge::Judge(string s)
+Judge::Judge(wstring s)
 {
     name = s;
 }
