@@ -1,6 +1,6 @@
 #pragma once
 
-#define LIMIT_INFINITE -1u 
+#define LIMIT_INFINITE 0xffffffffu
 
 namespace ACJudge
 {

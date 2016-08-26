@@ -38,9 +38,9 @@ Grades ACMJudge::judge(Task task, Submission submission)
                uout = fs.get_user_output(),
                sout = fs.get_std_output(data.did),
                uerr = fs.get_user_err_output(),
-               args[] = {L""};
+               args[] = {L"./user", L""};
         
-        res = box.run(L"./user", args, data.time, data.space, true, L"../" + sin, L"user.out", L"user.err");
+        res = box.run(args[0], args, data.time, data.space, true, L"../" + sin, L"user.out", L"user.err");
         if(res.ret != Return::OK)
         {
             grades.push_back({res, 0});
@@ -52,7 +52,7 @@ Grades ACMJudge::judge(Task task, Submission submission)
             args2[0] = L"./spj";
         else
             args2[0] = L"../default_judge";
-        res2 = box.run(L"../default_judge", args2, 5000, LIMIT_INFINITE, true, L"", L"", L"errlog2");
+        res2 = box.run(args2[0], args2, 5000, LIMIT_INFINITE, true, L"", L"", L"errlog2");
 
         if((res2.ret != Return::RTE && res2.ret != Return::OK) || res2.val < 0)
         {

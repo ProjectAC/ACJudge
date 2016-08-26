@@ -1,9 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <iostream>
+
+using namespace std;
 
 int main()
 {
+    /*
     // 1k
     int small_size = 1024;
     // 150m
@@ -28,5 +32,9 @@ int main()
         printf("malloc big size failed\n");
         return -2;
     }
+    */
+    cout<<"3"<<endl;
+    //while(1);
+    
     return 0;
 }

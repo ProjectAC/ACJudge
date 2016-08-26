@@ -1,6 +1,10 @@
 #include "../Definations/platform.h"
 #include "../Lib/lib.h"
 #include "sandbox.h"
+#include <iostream>
+#include <fstream>
+#include <Psapi.h>
+#pragma comment(lib, "Psapi.lib")
 
 using namespace ACJudge;
 using namespace std;
@@ -18,7 +22,7 @@ JOBOBJECT_EXTENDED_LIMIT_INFORMATION Sandbox::set_limits(Limit time, Limit space
 	if (space != LIMIT_INFINITE)
 	{
 		ex_lim.BasicLimitInformation.LimitFlags |= JOB_OBJECT_LIMIT_JOB_MEMORY;
-		ex_lim.JobMemoryLimit = SIZE_T((space + 1000000) * 1000);
+		ex_lim.JobMemoryLimit = SIZE_T((space + 1000) * 1000);
 	}
 
 	// Time limit
@@ -65,43 +69,45 @@ JOBOBJECT_BASIC_UI_RESTRICTIONS Sandbox::set_rules_UI(bool restricted)
 
 STARTUPINFO Sandbox::redirection(wstring in, wstring out, wstring err)
 {
-	//创建IO接口
+	SECURITY_ATTRIBUTES sa = { sizeof(SECURITY_ATTRIBUTES), NULL, TRUE };
+
+	// Create StartUpInfo
 	STARTUPINFO s = { sizeof(s) };
 	ZeroMemory(&s, sizeof(s));
 	s.cb = sizeof(STARTUPINFO);
 	s.dwFlags = STARTF_USESTDHANDLES;
 
-	//创建文件
+	// Create file
 	if (in != L"")
 	{
-		HANDLE fin = CreateFile(in.c_str(),
+		HANDLE fin = CreateFile((get_path() + in).c_str(),
 			GENERIC_READ,
-			FILE_SHARE_READ,
-			0,
-			CREATE_ALWAYS,
-			FILE_FLAG_OVERLAPPED,
+			FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+			&sa,
+			OPEN_EXISTING,
+			FILE_ATTRIBUTE_NORMAL,
 			0);
 		s.hStdInput = fin;
 	}
 	if (out != L"")
 	{
-		HANDLE fout = CreateFile(out.c_str(),
-			GENERIC_WRITE,
-			FILE_SHARE_READ,
-			0,
+		HANDLE fout = CreateFile((get_path() + out).c_str(),
+			GENERIC_READ | GENERIC_WRITE,
+			FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+			&sa,
 			CREATE_ALWAYS,
-			FILE_FLAG_OVERLAPPED,
+			FILE_ATTRIBUTE_NORMAL,
 			0);
-		s.hStdInput = fout;
+		s.hStdOutput = fout;
 	}
 	if (err != L"")
 	{
-		HANDLE ferr = CreateFile(err.c_str(),
-			GENERIC_WRITE,
-			FILE_SHARE_READ,
-			0,
+		HANDLE ferr = CreateFile((get_path() + err).c_str(),
+			GENERIC_READ | GENERIC_WRITE,
+			FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+			&sa,
 			CREATE_ALWAYS,
-			FILE_FLAG_OVERLAPPED,
+			FILE_ATTRIBUTE_NORMAL,
 			0);
 		s.hStdError = ferr;
 	}
@@ -128,11 +134,17 @@ Result Sandbox::run(std::wstring file, wchar_t *args[], Limit time, Limit space,
 	HANDLE job = CreateJobObject(NULL, NULL);
 	SetInformationJobObject(job, JobObjectExtendedLimitInformation, &ex_lim, sizeof(ex_lim));
 	SetInformationJobObject(job, JobObjectBasicUIRestrictions, &bs_ui, sizeof(bs_ui));
-
+	
 	// Operate arguments
-	wchar_t *str = new wchar_t[1000000];
-	wcscpy(str, name.c_str());
-	for (int i = 0; args[i]; i++)
+	wchar_t *str = new wchar_t[100000];
+	memset(str, 0, sizeof(str));
+	if (file[0] == L'.')
+		wcscat(str, get_path().c_str());
+	wcscat(str, args[0]);
+#if defined WINDOWS
+	wcscat(str, L".exe");
+#endif
+	for (int i = 1; args[i]; i++)
 		wcscat(str, L" "), wcscat(str, args[i]);
 
 	// Create process
@@ -140,7 +152,7 @@ Result Sandbox::run(std::wstring file, wchar_t *args[], Limit time, Limit space,
 		CreateProcess(NULL, str,
 			NULL,
 			NULL,
-			FALSE,
+			TRUE,
 			CREATE_SUSPENDED,
 			NULL,
 			NULL,
@@ -149,7 +161,7 @@ Result Sandbox::run(std::wstring file, wchar_t *args[], Limit time, Limit space,
 	if (!ret)
 	{
 		res.ret = Return::ERR;
-		res.msg = L"Error while creating subprocess.";
+		res.msg = L"Error while creating subprocess, errcode = " + i2s(GetLastError());
 		return res;
 	}
 
@@ -162,6 +174,17 @@ Result Sandbox::run(std::wstring file, wchar_t *args[], Limit time, Limit space,
 	handles[0] = p.hProcess;
 	handles[1] = job;
 	ret = WaitForMultipleObjects(2, handles, FALSE, time * 3);
+
+	FILETIME _, __, ___, user;
+	SYSTEMTIME suser;
+	PROCESS_MEMORY_COUNTERS pmc;
+	GetProcessTimes(p.hProcess, &_, &__, &___, &user);
+	GetProcessMemoryInfo(p.hProcess, &pmc, sizeof(pmc));
+	FileTimeToSystemTime(&user, &suser);
+
+	res.time = suser.wMilliseconds + suser.wSecond * 1000 + suser.wMinute * 60000;
+	if (res.time == 0) res.time = 1;
+	res.space = pmc.PeakWorkingSetSize / 1000;
 
 	switch (ret)
 	{
@@ -180,8 +203,13 @@ Result Sandbox::run(std::wstring file, wchar_t *args[], Limit time, Limit space,
 		}
 		else if (res.val)  // Return value not zero
 		{
+			wchar_t *file = new wchar_t[1000000];
+			wifstream fin(get_path() + L"errlog");
+			fin.getline(file, 1000000, EOF);
+
 			res.ret = Return::RTE;
-			res.msg = L"Runtime error. Return code is " + i2s(res.val) + L".";
+			res.msg = L"Return code is " + i2s(res.val) + L". Errlog:\n" + L"";
+			delete file;
 		}
 		else  // It seems all right
 		{
@@ -256,7 +284,7 @@ Return Sandbox::set_space_limit(Limit space)
 {
     // setrlimit
     RLimit limit;
-    limit.rlim_cur = limit.rlim_max = (rlim_t)(space + 20000000);
+    limit.rlim_cur = limit.rlim_max = (rlim_t)(space + 10000000);
     if(setrlimit(RLIMIT_AS, &limit) == -1)
         return Return::ERR;
     return Return::OK;
@@ -461,22 +489,24 @@ Result Sandbox::run(wstring file, wchar_t *args[], Limit time, Limit space, bool
         retval = WEXITSTATUS(status);
         if(retval == Return::ERR || retval == 256 + Return::ERR)  // System Return::ERRor
         {
-            wchar_t file[1000000];
+			wchar_t *file = new wchar_t[1000000];
             ifstream fin(get_path() + L"errlog");
             fin.getline(file, 1000000, EOF);
             
             res.ret = Return::ERR;
             res.val = retval;
-            res.msg = L"System Error #" + i2s(retval) + L".\nErrlog:\n" + file;;
+            res.msg = L"System Error #" + i2s(retval) + L".\nErrlog:\n" + file;
+			delete file;
         }else if(retval)  //RTE
         {
-            wchar_t file[1000000];
-            ifstream fin(get_path() + L"errlog");
+			wchar_t *file = new wchar_t[1000000];
+            wifstr eam fin(get_path() + L"errlog");
             fin.getline(file, 1000000, EOF);
 
             res.ret = Return::RTE;
             res.val = retval;
             res.msg = L"Returned " + i2s(retval) + L".\nErrlog:\n" + file;
+			delete file;
         }else
         {
             res.ret = Return::OK;  // All right

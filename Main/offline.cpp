@@ -35,7 +35,7 @@ int wmain(int argc, wchar_t *args[])
 {
     if(argc == 1)
     {
-        cout << L"\
+        wcout << L"\
 The arguments are:\n\
 1. judge name\n\
 2. tid\n\
@@ -103,10 +103,10 @@ The arguments are:\n\
         totres.space = max(totres.space, grade.res.space);
         totres.msg = grade.res.msg;
 
-        wcout << L"[Data #" << i << L" ] L";
+        wcout << L"[ Data #" << i << L" ] ";
         wcout << result[-grade.res.ret];
         if(type == TaskType::OI) wcout << L"(" << grade.score << L")";
-        wcout << L", L" << grade.res.time << L"ms, L";
+        wcout << L", " << grade.res.time << L"ms, ";
         wcout << grade.res.space << L"KB." << endl;
         //cout << L"Message: \n" << grade.res.msg << endl;
 
@@ -117,17 +117,17 @@ The arguments are:\n\
     i--;
     if(type == TaskType::OI)
     {
-        wcout << L"Total score: L" << score << endl;
+        wcout << L"Total score: " << score << endl;
     }
     else if(type == TaskType::ACM)
     {
-        if(i == cnt)
+        if(score == cnt)
             wcout << L"Accepted" << endl;
         else
             wcout << result[-totres.ret] << L" on data #" << i << endl;
     }
-    wcout << L"Total Time: L" << totres.time << endl;
-    wcout << L"Total Memory: L" << totres.space << endl;
+    wcout << L"Total Time: " << totres.time << "ms" << endl;
+    wcout << L"Total Memory: " << totres.space << "KB" << endl;
     wcout << L"------------------------------------------------" << endl;
     wcout << L"Message:\n" << totres.msg << endl;
     wcout << L"------------------------------------------------" << endl;

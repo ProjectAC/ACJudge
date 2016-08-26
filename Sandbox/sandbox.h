@@ -25,7 +25,7 @@ namespace ACJudge
 		JOBOBJECT_BASIC_UI_RESTRICTIONS set_rules_UI(bool restricted);
 
 		// Redirect file input/output/error target
-		STARTUPINFO redirection(wstring in, wstring out, wstring err);
+		STARTUPINFO redirection(std::wstring in, std::wstring out, std::wstring err);
 
 #elif defined _NIX
         // Set time limit

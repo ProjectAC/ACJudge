@@ -1,5 +1,6 @@
 #include "filesys.h"
 #include "../Lib/lib.h"
+#include "../Definations/platform.h"
 
 using namespace std;
 using namespace ACJudge;
@@ -34,30 +35,38 @@ Result FileSys::compile(CodeType id, Language l)
     Sandbox box(sbn);
     wstring path = (id == CodeType::USER ? spath : tpath);
     wstring name = (id == CodeType::USER ? L"user" : L"spj");
+	wstring outname = name;
+#if defined WINDOWS
+	outname += L".exe";
+#endif
 
     if(l == Language::CPP)  // GNU C++ 99
     {
-        wstring args[] = {L"g++", path + name + L".cpp", L"-o", bpath + name, L"-O2", L"-Wall", L"-lm", L""};
+        wstring args[] = {L"g++", path + name + L".cpp", L"-o", bpath + outname, L"-O2", L"-Wall", L"-lm", L""};
         return box.run(args[0], args, 5000, LIMIT_INFINITE, 0, L"", L"", L"errlog");
     }else if(l == Language::CPP11)  // GNU C++ 11 and later
     {
-        wstring args[] = {L"g++", path + name + L".cpp", L"-o", bpath + name, L"-O2", L"-Wall", L"-lm", L"-DONLINE_JUDGE", L"-std=c++11", L""};
+        wstring args[] = {L"g++", path + name + L".cpp", L"-o", bpath + outname, L"-O2", L"-Wall", L"-lm", L"-DONLINE_JUDGE", L"-std=c++11", L""};
         return box.run(args[0], args, 5000, LIMIT_INFINITE, 0, L"", L"", L"errlog");
     }else if(l == Language::C)  // GNU C 99
     {
-        wstring args[] = {L"gcc", path + name + L".c", L"-o", bpath + name, L"-O2", L"-Wall", L"-lm", L"-DONLINE_JUDGE", L"-std=c99", L""};
+        wstring args[] = {L"gcc", path + name + L".c", L"-o", bpath + outname, L"-O2", L"-Wall", L"-lm", L"-DONLINE_JUDGE", L"-std=c99", L""};
         return box.run(args[0], args, 5000, LIMIT_INFINITE, 0, L"", L"", L"errlog");
     }else /*if(l == Language::PYTHON)  // Python 2*/
     {
-        wstring args[] = {L"cp", path + name + L".py", bpath, L""};
+#if defined WINDOWS
+        wstring args[] = {L"copy", path + name + L".py", bpath, L""};
+#elif defined _NIX
+		wstring args[] = { L"cp", path + name + L".py", bpath, L"" };
+#endif
         return box.run(args[0], args, 5000, LIMIT_INFINITE, 0, L"", L"", L"errlog");
     }
 }
 
 FileSys::FileSys(ID tid, ID sid, wstring sbn)
 {
-    spath = L"../Data/Submissions/" + i2s(sid) + L"/";
-    tpath = L"../Data/Tasks/" + i2s(tid) + L"/";
-    bpath = L"../Container/" + sbn + L"/";
+	spath = L"../Data/Submissions/" + i2s(sid) + L"/";
+	tpath = L"../Data/Tasks/" + i2s(tid) + L"/";
+	bpath = L"../Container/" + sbn + L"/";
     FileSys::sbn = sbn;
 }
