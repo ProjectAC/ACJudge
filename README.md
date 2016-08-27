@@ -52,11 +52,20 @@ Then, after switching to the direction where the project is placed, follow these
     ./offline
   
 If it shows the usage of the program...  
-Voila! You've done it!
+Voila! You've done it!  
 
 ### For Windows User:
 
-You may straightly switch to /Release/ folder (for the code has already been built) and run ACJudge.exe!
-Solution for MS - Visual Studio 2015 is in folder Visual studio. You may need this if you wish to deal some changes.
+You may straightly switch to /Release/ folder (for the code has already been built) and run ACJudge.exe!  
+Solution for MS - Visual Studio 2015 is in folder Visual studio. You may need this if you wish to deal some changes.  
+Before building, you should edit /Definations/platform.h to switch the platform, that is, from
+    
+    // #define WINDOWS
+    #define _NIX
+
+to
+
+    #define WINDOWS
+    // #define _NIX 
 
 Tip: The pronounciation of word "Windows" is similar with "Wen Dao Si" in Chinese, which means "Plague to Death".   
