@@ -56,8 +56,8 @@ Voila! You've done it!
 
 ### For Windows User:
 
-**Warning: This Windows edition is much, much, much unsafer than the Linux one. Please use it only for self-testing or in a LAN Server.**
-You may straightly switch to /Release/ folder (for the code has already been built) and run ACJudge.exe!  
+**Warning: This Windows edition is much, much, much unsafer than the Linux one. Please use it only for self-testing or in a LAN Server!!!**  
+You may straightly switch to /Release/ folder (for the code has already been built) and run ACJudge.exe.  
 Solution for MS - Visual Studio 2015 is in folder Visual studio. You may need this if you wish to deal some changes.  
 Before building, you should edit /Definations/platform.h to switch the platform, that is, from
     
