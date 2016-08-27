@@ -3,7 +3,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include "../Lib/lib.h"
+#include "../Definations/platform.h"
 
 namespace ACJudge 
 {
