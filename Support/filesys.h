@@ -9,31 +9,31 @@ namespace ACJudge
 {
     class FileSys
     {
-        std::wstring tpath, spath, bpath, sbn;
+        Tstring tpath, spath, bpath, sbn;
 
     public:
         // [Interface] Get std input
         // It will return the name of the certain file
-        std::wstring get_std_input(ID did);
+        Tstring get_std_input(ID did);
 
         // [Interface] Get std output
         // It will return the name of the certain file
-        std::wstring get_std_output(ID did);
+        Tstring get_std_output(ID did);
 
         // [Interface] Get user output
         // It will return the name of the certain file
         // This method is designed only for answer-submitting task 
-        std::wstring get_user_output(ID did);
+        Tstring get_user_output(ID did);
 
         // [Interface] Get user output
         // It will return the name of the certain file
         // This method is designed for normal code task 
-        std::wstring get_user_output();
+        Tstring get_user_output();
 
         // [Interface] Get user error output
         // It will return the name of the certain file
         // This method is designed for normal code task 
-        std::wstring get_user_err_output();
+        Tstring get_user_err_output();
 
         // [Interface] Compile code
         // It will compile code to the sandbox direction
@@ -42,6 +42,6 @@ namespace ACJudge
         Result compile(CodeType id, Language l);
 
         // [Constructor]
-        FileSys(ID tid, ID sid, std::wstring sbn);
+        FileSys(ID tid, ID sid, Tstring sbn);
     };
 }

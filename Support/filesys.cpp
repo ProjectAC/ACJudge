@@ -5,68 +5,68 @@
 using namespace std;
 using namespace ACJudge;
 
-wstring FileSys::get_std_input(ID did)
+Tstring FileSys::get_std_input(ID did)
 {
-    return tpath + i2s(did) + L".in";
+    return tpath + i2s(did) + _T(".in");
 }
 
-wstring FileSys::get_std_output(ID did)
+Tstring FileSys::get_std_output(ID did)
 {
-    return tpath + i2s(did) + L".out";
+    return tpath + i2s(did) + _T(".out");
 }
 
-wstring FileSys::get_user_output(ID did)
+Tstring FileSys::get_user_output(ID did)
 {
-    return spath + i2s(did) + L".out";
+    return spath + i2s(did) + _T(".out");
 }
 
-wstring FileSys::get_user_err_output()
+Tstring FileSys::get_user_err_output()
 {
-    return bpath + L"user.err";
+    return bpath + _T("user.err");
 }
 
-wstring FileSys::get_user_output()
+Tstring FileSys::get_user_output()
 {
-    return bpath + L"user.out";
+    return bpath + _T("user.out");
 }
 
 Result FileSys::compile(CodeType id, Language l)
 {
     Sandbox box(sbn);
-    wstring path = (id == CodeType::USER ? spath : tpath);
-    wstring name = (id == CodeType::USER ? L"user" : L"spj");
-	wstring outname = name;
+    Tstring path = (id == CodeType::USER ? spath : tpath);
+    Tstring name = (id == CodeType::USER ? _T("user") : _T("spj"));
+	Tstring outname = name;
 #if defined WINDOWS
-	outname += L".exe";
+	outname += _T(".exe");
 #endif
 
     if(l == Language::CPP)  // GNU C++ 99
     {
-        wstring args[] = {L"g++", path + name + L".cpp", L"-o", bpath + outname, L"-O2", L"-Wall", L"-lm", L""};
-        return box.run(args[0], args, 5000, LIMIT_INFINITE, 0, L"", L"", L"errlog");
+        Tstring args[] = {_T("g++"), path + name + _T(".cpp"), _T("-o"), bpath + outname, _T("-O2"), _T("-Wall"), _T("-lm"), _T("")};
+        return box.run(args[0], args, 5000, LIMIT_INFINITE, 0, _T(""), _T(""), _T("errlog"));
     }else if(l == Language::CPP11)  // GNU C++ 11 and later
     {
-        wstring args[] = {L"g++", path + name + L".cpp", L"-o", bpath + outname, L"-O2", L"-Wall", L"-lm", L"-DONLINE_JUDGE", L"-std=c++11", L""};
-        return box.run(args[0], args, 5000, LIMIT_INFINITE, 0, L"", L"", L"errlog");
+        Tstring args[] = {_T("g++"), path + name + _T(".cpp"), _T("-o"), bpath + outname, _T("-O2"), _T("-Wall"), _T("-lm"), _T("-DONLINE_JUDGE"), _T("-std=c++11"), _T("")};
+        return box.run(args[0], args, 5000, LIMIT_INFINITE, 0, _T(""), _T(""), _T("errlog"));
     }else if(l == Language::C)  // GNU C 99
     {
-        wstring args[] = {L"gcc", path + name + L".c", L"-o", bpath + outname, L"-O2", L"-Wall", L"-lm", L"-DONLINE_JUDGE", L"-std=c99", L""};
-        return box.run(args[0], args, 5000, LIMIT_INFINITE, 0, L"", L"", L"errlog");
+        Tstring args[] = {_T("gcc"), path + name + _T(".c"), _T("-o"), bpath + outname, _T("-O2"), _T("-Wall"), _T("-lm"), _T("-DONLINE_JUDGE"), _T("-std=c99"), _T("")};
+        return box.run(args[0], args, 5000, LIMIT_INFINITE, 0, _T(""), _T(""), _T("errlog"));
     }else /*if(l == Language::PYTHON)  // Python 2*/
     {
 #if defined WINDOWS
-        wstring args[] = {L"copy", path + name + L".py", bpath, L""};
+        Tstring args[] = {_T("copy"), path + name + _T(".py"), bpath, _T("")};
 #elif defined _NIX
-		wstring args[] = { L"cp", path + name + L".py", bpath, L"" };
+		Tstring args[] = { _T("cp"), path + name + _T(".py"), bpath, _T("")};
 #endif
-        return box.run(args[0], args, 5000, LIMIT_INFINITE, 0, L"", L"", L"errlog");
+        return box.run(args[0], args, 5000, LIMIT_INFINITE, 0, _T(""), _T(""), _T("errlog"));
     }
 }
 
-FileSys::FileSys(ID tid, ID sid, wstring sbn)
+FileSys::FileSys(ID tid, ID sid, Tstring sbn)
 {
-	spath = L"../Data/Submissions/" + i2s(sid) + L"/";
-	tpath = L"../Data/Tasks/" + i2s(tid) + L"/";
-	bpath = L"../Container/" + sbn + L"/";
+	spath = _T("../Data/Submissions/")+ i2s(sid) + _T("/");
+	tpath = _T("../Data/Tasks/")+ i2s(tid) + _T("/");
+	bpath = _T("../Container/")+ sbn + _T("/");
     FileSys::sbn = sbn;
 }

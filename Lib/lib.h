@@ -3,14 +3,15 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include "../Lib/lib.h"
 
 namespace ACJudge 
 {
     template<class Integer>
-    std::wstring i2s(Integer i)
+    Tstring i2s(Integer i)
     {
-        std::wstringstream ss;
-        std::wstring s;
+        Tstringstream ss;
+        Tstring s;
         ss << i;
         ss >> s;
         return s;

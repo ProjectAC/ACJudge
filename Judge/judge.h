@@ -11,7 +11,7 @@ namespace ACJudge
     class Judge
     {
     protected:
-        std::wstring name;
+        Tstring name;
         
     public:
         // [Interface] judge
@@ -21,6 +21,6 @@ namespace ACJudge
 
         // [Constructor] Judge
         // Init the judge and set its name
-        Judge(std::wstring s);
+        Judge(Tstring s);
     };
 }

@@ -1,5 +1,6 @@
 #include "../Judge/oijudge.h"
 #include "../Judge/acmjudge.h"
+#include "../Definations/platform.h"
 #include "../Definations/types.h"
 #include "../Definations/enums.h"
 #include <cstdio>
@@ -10,15 +11,15 @@
 using namespace std;
 using namespace ACJudge;
 
-wstring result[10] = 
+Tstring result[10] = 
 {
-    L"Accepted",
-    L"System Error",
-    L"Time Limit Exceed",
-    L"Memory Limit Exceed",
-    L"Runtime Error",
-    L"Compilation Error",
-    L"Wrong Answer"
+    _T("Accepted"),
+    _T("System Error"),
+    _T("Time Limit Exceed"),
+    _T("Memory Limit Exceed"),
+    _T("Runtime Error"),
+    _T("Compilation Error"),
+    _T("Wrong Answer")
 };
 
 // The arguments are:
@@ -31,11 +32,15 @@ wstring result[10] =
 // 7. memory limit (KB)
 // 8. user language
 // 9. spj language (if this argument is -1, the judge will use default comparer)
-int wmain(int argc, wchar_t *args[])
+#if defined WINDOWS
+int wmain(int argc, Tchar *args[])
+#elif defined _NIX
+int main(int argc, Tchar *args[])
+#endif
 {
     if(argc == 1)
     {
-        wcout << L"\
+        Tcout << _T("\
 The arguments are:\n\
 1. judge name\n\
 2. tid\n\
@@ -45,30 +50,29 @@ The arguments are:\n\
 6. time limit (ms)\n\
 7. memory limit (KB)\n\
 8. user language\n\
-9. spj language (if this argument is -1, the judge will use default comparer)" << endl;
+9. spj language (if this argument is -1, the judge will use default comparer)") << endl;
         return 0;
     }
-
 
     ID tid, sid;
     int type, usrlan, spjlan;
     Number cnt;
     Limit time, space;
     
-    wstring name(args[1]);
+    Tstring name(args[1]);
 #if defined WINDOWS
-	swscanf(args[2], L"%I64u", &tid);
-	swscanf(args[3], L"%I64u", &sid);
+	Tsscanf(args[2], _T("%I64u"), &tid);
+	Tsscanf(args[3], _T("%I64u"), &sid);
 #elif defined _NIX
-    swscanf(args[2], L"%llu", &tid);
-    swscanf(args[3], L"%llu", &sid);
+    Tsscanf(args[2], _T("%llu"), &tid);
+	Tsscanf(args[3], _T("%llu"), &sid);
 #endif
-    swscanf(args[4], L"%d", &type);
-    swscanf(args[5], L"%hu", &cnt);
-    swscanf(args[6], L"%u", &time);
-    swscanf(args[7], L"%u", &space);
-    swscanf(args[8], L"%d", &usrlan);
-    swscanf(args[9], L"%d", &spjlan);
+    Tsscanf(args[4], _T("%d"), &type);
+    Tsscanf(args[5], _T("%hu"), &cnt);
+    Tsscanf(args[6], _T("%u"), &time);
+    Tsscanf(args[7], _T("%u"), &space);
+    Tsscanf(args[8], _T("%d"), &usrlan);
+    Tsscanf(args[9], _T("%d"), &spjlan);
 
     vector<Data> data;
     for(Number i = 1; i <= cnt; i++)
@@ -91,10 +95,10 @@ The arguments are:\n\
     }
     
     int i = 1;
-    Result totres = {0, 0, Return::OK, 0, L""};
+    Result totres = {0, 0, Return::OK, 0, _T("")};
     Score score = 0;
 
-    wcout << L"------------------------------------------------" << endl;
+    Tcout << _T("------------------------------------------------") << endl;
     for(auto grade: grades)
     {
         score += grade.score;
@@ -103,34 +107,34 @@ The arguments are:\n\
         totres.space = max(totres.space, grade.res.space);
         totres.msg = grade.res.msg;
 
-        wcout << L"[ Data #" << i << L" ] ";
-        wcout << result[-grade.res.ret];
-        if(type == TaskType::OI) wcout << L"(" << grade.score << L")";
-        wcout << L", " << grade.res.time << L"ms, ";
-        wcout << grade.res.space << L"KB." << endl;
-        //cout << L"Message: \n" << grade.res.msg << endl;
+        Tcout << _T("[ Data #") << i << _T(" ] ");
+        Tcout << result[-grade.res.ret];
+        if(type == TaskType::OI) Tcout << _T(" (") << grade.score << _T(") ");
+        Tcout << _T(", ") << grade.res.time << _T("ms, ");
+        Tcout << grade.res.space << _T("KB.") << endl;
+        //Tcout << _T("Message: \n")<< grade.res.msg << endl;
 
         i++;
     }
-    wcout << L"------------------------------------------------" << endl;
+    Tcout << _T("------------------------------------------------") << endl;
 
     i--;
     if(type == TaskType::OI)
     {
-        wcout << L"Total score: " << score << endl;
+        Tcout << _T("Total score: ") << score << endl;
     }
     else if(type == TaskType::ACM)
     {
         if(score == cnt)
-            wcout << L"Accepted" << endl;
+            Tcout << _T("Accepted") << endl;
         else
-            wcout << result[-totres.ret] << L" on data #" << i << endl;
+            Tcout << result[-totres.ret] << _T(" on data #") << i << endl;
     }
-    wcout << L"Total Time: " << totres.time << "ms" << endl;
-    wcout << L"Total Memory: " << totres.space << "KB" << endl;
-    wcout << L"------------------------------------------------" << endl;
-    wcout << L"Message:\n" << totres.msg << endl;
-    wcout << L"------------------------------------------------" << endl;
+    Tcout << _T("Total Time: ") << totres.time << _T("ms") << endl;
+    Tcout << _T("Total Memory: ") << totres.space << _T("KB") << endl;
+    Tcout << _T("------------------------------------------------") << endl;
+    Tcout << _T("Message:\n") << totres.msg << endl;
+    Tcout << _T("------------------------------------------------") << endl;
 
     return 0;
 }

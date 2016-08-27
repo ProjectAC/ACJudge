@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include "platform.h"
 #include "enums.h"
 
 namespace ACJudge
@@ -18,7 +19,7 @@ namespace ACJudge
         Limit time, space;
         Return ret;
         int val;
-        std::wstring msg;
+        Tstring msg;
     };
 
     struct Grade 
