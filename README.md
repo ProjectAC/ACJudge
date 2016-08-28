@@ -1,6 +1,6 @@
 # ACJudge
 A Complex Judge, designed for ACOJ.  
-Currently it's Linux only. But it will soon be available on Windows.  
+It's now OK both on Windows and Linux!!!  
 Mac? Huh? What are you talking about?
   
 **Notice: This project will support C language no more!**
