@@ -41,6 +41,10 @@ namespace ACJudge
         // It will straightly copy the code to the sandbox direction
         Result compile(CodeType id, Language l);
 
+		// [Interface] Run code
+		// Run the code (of user submission or special judge)
+		Result run(CodeType type, Language l, Data data);
+
         // [Constructor]
         FileSys(ID tid, ID sid, Tstring sbn);
     };

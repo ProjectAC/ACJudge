@@ -24,16 +24,16 @@
     <ClCompile Include="..\..\..\Judge\oijudge.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Main\offline.cpp">
+    <ClCompile Include="..\..\..\Sandbox\sandbox.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Sandbox\sandbox.cpp">
+    <ClCompile Include="..\..\..\Support\filesys.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Support\database.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Support\filesys.cpp">
+    <ClCompile Include="..\..\..\Main\main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -62,10 +62,10 @@
     <ClInclude Include="..\..\..\Sandbox\sandbox.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Support\database.h">
+    <ClInclude Include="..\..\..\Support\filesys.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Support\filesys.h">
+    <ClInclude Include="..\..\..\Support\database.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

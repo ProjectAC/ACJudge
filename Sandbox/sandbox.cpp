@@ -187,7 +187,7 @@ Result Sandbox::run(Tstring file, Tchar *args[], Limit time, Limit space, bool r
 
 	res.time = suser.wMilliseconds + suser.wSecond * 1000 + suser.wMinute * 60000;
 	if (res.time == 0) res.time = 1;
-	res.space = pmc.PeakWorkingSetSize / 1000;
+	res.space = (Limit)(pmc.PeakWorkingSetSize / 1000);
 
 	switch (ret)
 	{

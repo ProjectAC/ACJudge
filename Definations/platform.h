@@ -4,8 +4,8 @@
 #include <iostream>
 #include <fstream>
 
-//#define WINDOWS
-#define _NIX
+#define WINDOWS
+//#define _NIX
 
 #if defined WINDOWS
 

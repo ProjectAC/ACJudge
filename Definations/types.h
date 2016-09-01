@@ -8,8 +8,8 @@ namespace ACJudge
 {
     typedef unsigned long long ID;
     typedef unsigned int Limit;
-    typedef unsigned short Score;
-    typedef unsigned short Number;
+    typedef unsigned int Score;
+    typedef unsigned int Number;
     typedef struct rlimit RLimit;
     typedef struct itimerval ITimerVal;
     typedef struct rusage RUsage;
@@ -47,6 +47,7 @@ namespace ACJudge
     struct Submission
     {
         ID sid;
+		ID tid;
         Language language;
     };
 };

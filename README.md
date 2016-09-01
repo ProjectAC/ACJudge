@@ -1,9 +1,10 @@
 # ACJudge
 A Complex Judge, designed for ACOJ.  
 Currently it's Linux only. But it will soon be available on Windows.  
-Mac? Huh? What are you talking about?
-  
-**Notice: This project will support C language no more!**
+Mac? Huh? What are you talking about?  
+**ACOJ Web goes [here](https://github.com/DXkite/ACOJ)!**   
+This project will support ANSI C no more.  
+**Warning: My Ubuntu has crashed, so the new (online) version for Linux is NOT TESTED yet!!**
 
 ### [Judge]
 Scoring users' submissions.  
@@ -22,6 +23,13 @@ When ACOJ Server is started, this module will be automatically started, but with
   
   
 -----------------------
+
+## Update
+
+**[ACJudge 1.4] Link Start**   
+ACJudge Online is OK!  
+You only need a mysql DBMS to make it run.  
+Maybe you also want a web server (classic ones like Apache).   
 
 ## License
 

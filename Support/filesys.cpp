@@ -63,6 +63,25 @@ Result FileSys::compile(CodeType id, Language l)
     }
 }
 
+Result FileSys::run(CodeType type, Language l, Data data)
+{
+	Sandbox box(sbn);
+
+	if (type == CodeType::USER)
+	{
+		Tstring args[] = { _T("./user"), _T("") };
+		return box.run(args[0], args, data.time, data.space, true, _T("../") + get_std_input(data.did), _T("user.out"), _T("user.err"));
+	} else
+	{
+		Tstring args[] = { _T(""), get_std_input(data.did), get_std_output(data.did), get_user_output(), i2s(data.score), _T("") };
+		if (l != Language::NONE)
+			args[0] = _T("./spj");
+		else
+			args[0] = _T("../default_judge");
+		return box.run(args[0], args, 5000, LIMIT_INFINITE, true, _T(""), _T(""), _T("errlog2"));
+	}
+}
+
 FileSys::FileSys(ID tid, ID sid, Tstring sbn)
 {
 	spath = _T("../Data/Submissions/")+ i2s(sid) + _T("/");
