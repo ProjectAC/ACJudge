@@ -57,7 +57,7 @@ Then, after switching to the direction where the project is placed, follow these
     make
     make clean
     cd Release
-    ./offline
+    ./acjudge
   
 If it shows the usage of the program...  
 Voila! You've done it!  
