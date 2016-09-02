@@ -4,6 +4,7 @@ language: cpp
 script:
   - make
 before_install:
+  - ls /
   - sudo apt-get -qq update
   - sudo apt-get install -y libseccomp-dev
   - wget https://sourceforge.net/projects/boost/files/boost/1.61.0/boost_1_61_0.tar.bz2 /path/to/boost_1_61_0.tar.bz2
