@@ -1,5 +1,5 @@
 objs = Sandbox/sandbox.o Support/filesys.o Judge/judge.o Judge/oijudge.o Judge/acmjudge.o Main/main.o
-CPPFLAGS = -g -O2 -Wall -std=c++11
+CPPFLAGS = -s -O2 -Wall -Wextra -std=c++11 -I/usr/include/mysql -I/usr/include
 Release/acjudge : $(objs)
 	g++ -o Release/offline $(objs) -lseccomp
 clean:

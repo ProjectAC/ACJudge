@@ -4,8 +4,12 @@
 #include <iostream>
 #include <fstream>
 
+#ifdef _WIN32
 #define WINDOWS
-//#define _NIX
+#endif
+#ifdef __unix__
+#define _NIX
+#endif 
 
 #if defined WINDOWS
 
