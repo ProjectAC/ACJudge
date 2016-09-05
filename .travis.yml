@@ -14,4 +14,7 @@ before_install:
   - sudo git clone https://github.com/mysql/mysql-connector-cpp.git 
   - cd mysql-connector-cpp/
   - sudo cmake . -DBOOST_ROOT=/usr/local/boost_1_61_0
+  - sudo make clean
+  - sudo make
+  - sudo make install
   - cd ..
