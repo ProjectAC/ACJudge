@@ -8,9 +8,8 @@ before_install:
   - sudo apt-get -qq update
   - sudo apt-get install -y libseccomp-dev
   - wget https://sourceforge.net/projects/boost/files/boost/1.61.0/boost_1_61_0.tar.bz2 
-  - sudo mv boost_1_61_0.tar.bz2 /usr/local/boost_1_61_0.tar.bz2
-  - sudo tar --bzip2 -xf /usr/local/boost_1_61_0.tar.bz2
-  - ls
+  - tar --bzip2 -xf /usr/local/boost_1_61_0.tar.bz2
+  - sudo mv boost_1_61_0.tar/ /usr/local/
   - sudo chmod -R 755 /usr/local/boost_1_61_0/
   - sudo git clone https://github.com/mysql/mysql-connector-cpp.git 
   - cd mysql-connector-cpp/
