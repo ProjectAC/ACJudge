@@ -11,7 +11,7 @@ before_install:
   - tar --bzip2 -xf boost_1_61_0.tar.bz2
   - sudo mv boost_1_61_0/ /usr/local/
   - sudo chmod -R 755 /usr/local/boost_1_61_0/
-  - sudo git clone https://github.com/mysql/mysql-connector-cpp.git 
+  - sudo git clone https://github.com/anhstudios/mysql-connector-cpp.git
   - cd mysql-connector-cpp/
   - sudo cmake . -DBOOST_ROOT=/usr/local/boost_1_61_0
   - sudo make clean
